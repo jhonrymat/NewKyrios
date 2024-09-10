@@ -73,7 +73,7 @@ class OrdenController extends Controller
         if ($request->ajax()) {
             $ordenes = Orden::where('estado', 'ENTREGADO')
                 ->orderBy('codigo', 'desc')
-                ->select(['codigo','fecha', 'nomcliente', 'celcliente', 'marca', 'modelo','tecnico']);
+                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico']);
 
             return DataTables::of($ordenes)
                 ->make(true);
@@ -170,6 +170,49 @@ class OrdenController extends Controller
         return response()->json(['success' => 'Orden actualizada correctamente.']);
     }
 
+    public function updatefinalizadas(Request $request, $codigo)
+    {
+        $request->validate([
+            'nomcliente' => 'required|string|max:255',
+            'celcliente' => 'required|numeric',
+            'equipo' => 'required|string|max:255',
+            'marca' => 'required|string|max:255',
+            'modelo' => 'required|string|max:255',
+            'serial' => 'required|string|max:255',
+            'cargador' => 'required|string|max:255',
+            'bateria' => 'required|string|max:255',
+            'otros' => 'required|string|max:255',
+            'notacliente' => 'required|string',
+            'notatecnico' => 'required|string',
+            'observaciones' => 'nullable|string',
+            'valor' => 'nullable|numeric',
+            'fechafin' => 'required'
+        ]);
+
+        // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
+        $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Actualizar la orden con los nuevos datos
+        $orden->update([
+            'nomcliente' => strtoupper($request->nomcliente),
+            'celcliente' => strtoupper($request->celcliente),
+            'equipo' => strtoupper($request->equipo),
+            'marca' => strtoupper($request->marca),
+            'modelo' => strtoupper($request->modelo),
+            'serial' => strtoupper($request->serial),
+            'cargador' => strtoupper($request->cargador),
+            'bateria' => strtoupper($request->bateria),
+            'otros' => strtoupper($request->otros),
+            'notacliente' => strtoupper($request->notacliente),
+            'notatecnico' => strtoupper($request->notatecnico),
+            'observaciones' => strtoupper($request->observaciones),
+            'valor' => $request->valor,
+            'fechafin' => $request->fechafin,
+        ]);
+
+        return redirect()->route('ordenes.finalizadas')->with('success', 'Orden actualizada correctamente.');
+    }
+
     public function destroy($codigo)
     {
         // Encontrar la orden por el campo 'codigo'
@@ -192,6 +235,13 @@ class OrdenController extends Controller
         return response()->json(['nuevoCodigo' => $nuevoCodigo]);
     }
 
+    public function edit($id)
+    {
+        // Busca la orden por su código
+        $orden = Orden::where('codigo', $id)->firstOrFail();
 
+        // Retorna los datos de la orden en formato JSON para usarlos en el modal
+        return response()->json($orden);
+    }
 
 }

@@ -41,7 +41,7 @@
                 </div>
             </div>
         </div>
-
+        @include('ordenes.finalizadas.edit-modal')
     </div>
 @endsection
 @section('css')
@@ -95,10 +95,10 @@
                                 <a href="/admin/orden/${data}/finalizados" target="_blank" class="btn btn-warning btn-sm">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
-                                <a data-toggle="modal" data-target="#modal-edit-${data}" class="btn btn-primary btn-sm">
+                                <button class="btn btn-primary btn-sm editOrder" data-id="${data}">
                                     <i class="fa fa-edit"></i>
-                                </a>
-                                <button class="btn btn-danger btn-sm deleteApp" data-appid="${data}" data-toggle="modal" data-target="#deleteConfirmationModal">
+                                </button>
+                                <button class="btn btn-danger btn-sm deleteApp" data-id="${data}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             `;
@@ -116,18 +116,63 @@
         });
     </script>
     <script>
+        $(document).on('click', '.editOrder', function() {
+            var ordenId = $(this).data('id'); // Obtiene el id de la orden
+
+            $.ajax({
+                url: `/admin/orden/${ordenId}/edit`, // Ajusta según tu ruta
+                type: 'GET',
+                success: function(data) {
+
+                    // Completar los campos del formulario con los datos recibidos
+                    $('#tecnico').val(data.tecnico);
+                    $('#fecha').val(data.fecha);
+                    $('#horainicio').val(data.horainicio);
+                    $('#nomcliente').val(data.nomcliente);
+                    $('#celcliente').val(data.celcliente);
+                    $('#equipo').val(data.equipo);
+                    $('#marca').val(data.marca);
+                    $('#modelo').val(data.modelo);
+                    $('#serial').val(data.serial);
+                    $('#cargador').val(data.cargador);
+                    $('#bateria').val(data.bateria);
+                    $('#otros').val(data.otros);
+                    $('#notacliente').val(data.notacliente);
+                    $('#observaciones').val(data.observaciones);
+                    $('#notatecnico').val(data.notatecnico);
+                    $('#valor').val(data.valor);
+                    $('#fechafin').val(convertirFecha(data.fechafin));
+
+                    // Establecer la acción del formulario
+                    $('#editForm').attr('action', `/admin/orden/finalizadas/${ordenId}`);
+                    $('#editOrderModal').modal('show'); // Mostrar el modal
+                }
+            });
+        });
+
+        function convertirFecha(fecha) {
+            const partes = fecha.split('/');
+            const dia = partes[0];
+            const mes = partes[1];
+            const anio = partes[2];
+            return `${anio}-${mes}-${dia}`;
+        }
+
         $('form[id^="editForm-"]').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
             var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
             var formData = $(this).serialize(); // Serializar los datos del formulario
 
             $.ajax({
-                type: "POST",
-                url: "{{ route('ordenes.update', '') }}/" + appId, // Generar correctamente la URL
+                type: "PUT",
+                url: "/admin/orden/finalizadas/" +
+                    appId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
-                    alert("Orden actualizada con éxito");
-                    location.reload(); // Opcional: recargar la página o actualizar la vista
+                    if (response.success) {
+                        alert("Orden actualizada correctamente");
+                        $('#editOrderModal').modal('hide'); // Cerrar modal
+                    }
                 },
                 error: function(error) {
                     console.log(error);

@@ -164,5 +164,9 @@ Route::post('/orden/store', [OrdenController::class, 'store'])->name('ordenes.st
 Route::put('orden/{codigo}', [OrdenController::class, 'update'])->middleware('can:ordenes.update')->name('ordenes.update');
 Route::delete('orden/{codigo}', [OrdenController::class, 'destroy'])->middleware('can:ordenes.destroy')->name('ordenes.destroy');
 Route::get('/get-latest-order-id', [OrdenController::class, 'getLatestOrderId'])->name('getLatestOrderId');
+Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->name('ordenes.edit');
+
+Route::put('orden/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->name('ordenes.update.finalizadas');
+
 
 
