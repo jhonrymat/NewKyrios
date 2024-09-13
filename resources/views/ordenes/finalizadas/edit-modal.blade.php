@@ -6,7 +6,9 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Editar Orden</h5>
+                    <h5 class="modal-title">Editar Orden N°
+                        <span id="ordenCodigo"></span></h5>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

@@ -109,9 +109,18 @@
                                     <i class="fas fa-barcode"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="serial" name="serial" placeholder="" required>
+                            <input type="text" class="form-control" id="serial" name="serial" placeholder=""
+                                required>
+                            <button id="start-scan" class="btn btn-primary">Escanear</button>
+                            <button id="stop-scan" class="btn btn-danger" style="display:none;">Detener</button>
                         </div>
                     </div>
+
+                    <!-- Ocultar inicialmente el contenedor del escáner -->
+                    <div id="scanner-container" style="display:none;"></div>
+
+
+
                     <div class="form-group">
                         <label for="cargador">Cargador</label>
                         <div class="input-group mb-2 mr-sm-2">
@@ -120,7 +129,8 @@
                                     <i class="fas fa-plug"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="cargador" name="cargador" placeholder="" required>
+                            <input type="text" class="form-control" id="cargador" name="cargador"
+                                placeholder="" required>
                         </div>
                     </div>
 
@@ -132,7 +142,8 @@
                                     <i class="fas fa-car-battery"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="bateria" name="bateria" placeholder="" required>
+                            <input type="text" class="form-control" id="bateria" name="bateria" placeholder=""
+                                required>
                         </div>
                     </div>
 
@@ -144,7 +155,8 @@
                                     <i class="fas fa-pencil-alt"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="otros" name="otros" placeholder="" required>
+                            <input type="text" class="form-control" id="otros" name="otros" placeholder=""
+                                required>
                         </div>
                     </div>
 
@@ -177,7 +189,8 @@
                                     <i class="fas fa-dollar-sign"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="valor" name="valor" placeholder="">
+                            <input type="text" class="form-control" id="valor" name="valor"
+                                placeholder="">
                         </div>
                     </div>
                 </div>

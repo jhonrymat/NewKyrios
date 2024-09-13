@@ -107,9 +107,12 @@ class OrdenController extends Controller
 
         // Extraer solo la hora
         $hora = $fechaHora->toTimeString(); // Ejemplo: '14:30:00'
+        $fechaOriginal = $fecha; // Recibe la fecha en formato 'YYYY-MM-DD'
+        $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fechaOriginal)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
+
 
         Orden::create([
-            'fecha' => $fecha,
+            'fecha' => $fechaFormateada,
             'nomcliente' => strtoupper($request->nomcliente),
             'celcliente' => strtoupper($request->celcliente),
             'equipo' => strtoupper($request->equipo),
@@ -170,6 +173,48 @@ class OrdenController extends Controller
         return response()->json(['success' => 'Orden actualizada correctamente.']);
     }
 
+    //finalizar orden
+    public function finalizar(Request $request, $codigo)
+    {
+        $request->validate([
+            'nomcliente' => 'required|string|max:255',
+            'celcliente' => 'required|numeric',
+            'equipo' => 'required|string|max:255',
+            'marca' => 'required|string|max:255',
+            'modelo' => 'required|string|max:255',
+            'serial' => 'required|string|max:255',
+            'cargador' => 'required|string|max:255',
+            'bateria' => 'required|string|max:255',
+            'otros' => 'required|string|max:255',
+            'notacliente' => 'required|string',
+            'observaciones' => 'nullable|string',
+            'valor' => 'required|numeric',
+            'notatecnico' => 'required|string',
+        ]);
+
+        // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
+        $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Actualizar la orden con los nuevos datos
+        $orden->update([
+            'nomcliente' => strtoupper($request->nomcliente),
+            'celcliente' => strtoupper($request->celcliente),
+            'equipo' => strtoupper($request->equipo),
+            'marca' => strtoupper($request->marca),
+            'modelo' => strtoupper($request->modelo),
+            'serial' => strtoupper($request->serial),
+            'cargador' => strtoupper($request->cargador),
+            'bateria' => strtoupper($request->bateria),
+            'otros' => strtoupper($request->otros),
+            'notacliente' => strtoupper($request->notacliente),
+            'observaciones' => strtoupper($request->observaciones),
+            'valor' => $request->valor,
+            'estado' => 'ENTREGADO',
+        ]);
+
+        return response()->json(['success' => 'Orden actualizada correctamente.']);
+    }
+
     public function updatefinalizadas(Request $request, $codigo)
     {
         $request->validate([
@@ -192,6 +237,12 @@ class OrdenController extends Controller
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
         $orden = Orden::where('codigo', $codigo)->firstOrFail();
 
+        // Convierte la fecha de 'd/m/Y' a 'Y-m-d' antes de guardarla en la base de datos
+        $fechaOriginal = $request->fechafin; // Recibe la fecha en formato 'YYYY-MM-DD'
+        $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fechaOriginal)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
+
+
+
         // Actualizar la orden con los nuevos datos
         $orden->update([
             'nomcliente' => strtoupper($request->nomcliente),
@@ -207,7 +258,7 @@ class OrdenController extends Controller
             'notatecnico' => strtoupper($request->notatecnico),
             'observaciones' => strtoupper($request->observaciones),
             'valor' => $request->valor,
-            'fechafin' => $request->fechafin,
+            'fechafin' => $fechaFormateada,
         ]);
 
         return redirect()->route('ordenes.finalizadas')->with('success', 'Orden actualizada correctamente.');
@@ -243,5 +294,37 @@ class OrdenController extends Controller
         // Retorna los datos de la orden en formato JSON para usarlos en el modal
         return response()->json($orden);
     }
+
+    public function buscar(Request $request)
+    {
+        // Validar que el código fue ingresado
+        $request->validate([
+            'codigo' => 'required|string'
+        ]);
+
+        $orden = Orden::where('codigo', $request->codigo)->first();
+
+        if ($orden) {
+            return response()->json(['orden' => $orden]);
+        } else {
+            return response()->json(['error' => 'No se encontró la orden.']);
+        }
+    }
+
+    // modificar columna reparado
+    public function updateReparado(Request $request, $id)
+    {
+        $orden = Orden::findOrFail($id);
+
+        // Actualizar solo el campo 'reparado'
+        $orden->reparado = $request->input('reparado') ? 'reparado' : null;
+
+        $orden->save();
+
+        return response()->json(['success' => 'Estado de reparación actualizado correctamente']);
+    }
+
+
+
 
 }

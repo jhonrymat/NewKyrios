@@ -167,6 +167,11 @@ Route::get('/get-latest-order-id', [OrdenController::class, 'getLatestOrderId'])
 Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->name('ordenes.edit');
 
 Route::put('orden/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->name('ordenes.update.finalizadas');
+// Finalizar orden pendiente
+Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->name('ordenes.finalizar');
+
+// Actualizar columna reparado
+Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->name('ordenes.update.reparado');
 
 
 

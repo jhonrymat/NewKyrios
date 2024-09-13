@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('plugins.Select2', true)
+@section(['plugins.Select2', true, 'plugins.sweetalert2', true])
 
 @section('title', 'Ordenes finalizadas')
 
@@ -42,6 +42,7 @@
             </div>
         </div>
         @include('ordenes.finalizadas.edit-modal')
+        @include('ordenes.finalizadas.delete-modal')
     </div>
 @endsection
 @section('css')
@@ -123,8 +124,14 @@
                 url: `/admin/orden/${ordenId}/edit`, // Ajusta según tu ruta
                 type: 'GET',
                 success: function(data) {
+                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
+                    var fechafinOriginal = data.fechafin;
+                    var fechaFormateada = fechafinOriginal.split('/').reverse().join(
+                        '-'); // Convertir a 'DD/MM/YYYY'
+
 
                     // Completar los campos del formulario con los datos recibidos
+                    $('#ordenCodigo').text(data.codigo);
                     $('#tecnico').val(data.tecnico);
                     $('#fecha').val(data.fecha);
                     $('#horainicio').val(data.horainicio);
@@ -141,7 +148,7 @@
                     $('#observaciones').val(data.observaciones);
                     $('#notatecnico').val(data.notatecnico);
                     $('#valor').val(data.valor);
-                    $('#fechafin').val(convertirFecha(data.fechafin));
+                    $('#fechafin').val(fechaFormateada);
 
                     // Establecer la acción del formulario
                     $('#editForm').attr('action', `/admin/orden/finalizadas/${ordenId}`);
@@ -149,14 +156,6 @@
                 }
             });
         });
-
-        function convertirFecha(fecha) {
-            const partes = fecha.split('/');
-            const dia = partes[0];
-            const mes = partes[1];
-            const anio = partes[2];
-            return `${anio}-${mes}-${dia}`;
-        }
 
         $('form[id^="editForm-"]').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
@@ -172,6 +171,7 @@
                     if (response.success) {
                         alert("Orden actualizada correctamente");
                         $('#editOrderModal').modal('hide'); // Cerrar modal
+                        $('#ordenes-table').DataTable().ajax.reload();
                     }
                 },
                 error: function(error) {
@@ -182,36 +182,48 @@
         });
     </script>
     <script>
-        $(document).ready(function() {
-            // Usar delegated event para asegurar que siempre se capture el evento, incluso en elementos dinámicos
-            $(document).on('click', '.deleteApp', function() {
-                var ordenCodigo = $(this).data('appid'); // Obtén el código de la orden
-                console.log("Código de la orden a eliminar: " + ordenCodigo); // Verifica en la consola
-                $('#delete-btn').data('appid', ordenCodigo); // Asigna el código al botón de confirmación
-            });
-
-            // Confirmar la eliminación al hacer clic en el botón del modal
-            $('#delete-btn').click(function() {
-                var ordenCodigo = $(this).data('appid'); // Obtiene el código de la orden
-                if (ordenCodigo) {
+        // Handle Delete button click
+        $(document).on('click', '.deleteApp', function() {
+            var ordenId = $(this).data('id');
+            $('#delete-btn').data('id', ordenId);
+            $('#deleteConfirmationModal').modal('show'); // Show the confirmation modal
+        });
+        $('#delete-btn').click(function() {
+            var ordenId = $(this).data('id');
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('ordenes.update', '') }}/" +
-                            ordenCodigo, // Asegúrate de ajustar esta URL según tu enrutamiento
+                        url: `/admin/orden/${ordenId}`,
                         type: 'DELETE',
                         data: {
-                            _token: $('meta[name="csrf-token"]').attr('content') // Token CSRF
+                            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
                         },
                         success: function(response) {
-                            alert("Orden eliminada con éxito");
-                            location.reload(); // Recargar la página
+                            Swal.fire(
+                                'Eliminado',
+                                'La orden ha sido eliminada correctamente.',
+                                'success'
+                            );
+                            $('#deleteConfirmationModal').modal('hide');
+                            $('#ordenes-table').DataTable().ajax.reload(); // Recargar la tabla
                         },
                         error: function(error) {
-                            console.log(error);
-                            alert("Error al eliminar la orden");
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al eliminar la orden.',
+                                'error'
+                            );
                         }
                     });
-                } else {
-                    console.log("Código de la orden no definido");
                 }
             });
         });

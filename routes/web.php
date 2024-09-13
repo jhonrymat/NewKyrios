@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\OrdenController;
 use App\Http\Controllers\ClocalController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ContactoController;
@@ -31,6 +32,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/whatsapp-webhook', [MessageController::class, 'verifyWebhook']);
 Route::post('/whatsapp-webhook', [MessageController::class, 'processWebhook']);
 Route::get('/send-message', [MessageController::class, 'sendMessages']);
+
+Route::get('/buscar-orden', [OrdenController::class, 'buscar'])->name('buscar.orden');
 
 Route::get('/check-session', function () {
     return response()->json(['is_logged_in' => auth()->check()]);

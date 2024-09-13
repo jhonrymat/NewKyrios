@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('estado', 10); // VARCHAR(10)
             $table->string('fechafin', 10)->nullable(); // VARCHAR(10), con valor NULL permitido
             $table->string('horainicio', 12); // VARCHAR(12)
+            $table->string('reparado', 12); // VARCHAR(12)
 
             $table->timestamps(); // Esto añadirá las columnas 'created_at' y 'updated_at'
         });

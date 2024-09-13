@@ -4,8 +4,8 @@
 /* VARIABLES */
 :root {
     --c-dark: #212529;
-    --c-brand: #1c9247;
-    --c-brand-light: #71dd69;
+    --c-brand: #1c3a92;
+    --c-brand-light: #69a3dd;
     --c-brand-rgb: 78, 87, 212;
     --c-body: #727272;
     --font-base: "ClashDisplay", sans-serif;
@@ -109,7 +109,7 @@ img {
 
 /* HERO */
 #hero {
-    background: linear-gradient(rgba(1, 57, 1, 0.6), rgba(24, 41, 24, 0.5)), url(../images/whats66.jpg);
+    background: linear-gradient(rgba(1, 10, 57, 0.684), rgba(24, 34, 41, 0.656)), url(../images/111.jpeg);
     background-position: center;
     background-size: cover;
 }
