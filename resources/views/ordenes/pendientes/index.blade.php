@@ -380,4 +380,45 @@
             this.style.display = 'none';
         });
     </script>
+    {{-- optimizando select2 --}}
+    <script>
+        $(document).ready(function() {
+            function inicializarSelect2(selector, tipo) {
+                $(selector).select2({
+                    ajax: {
+                        url: "{{ route('buscar.datos') }}",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                q: params.term,
+                                tipo: tipo // Definir el tipo de búsqueda
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: $.map(data, function(item) {
+                                    return {
+                                        id: item,
+                                        text: item
+                                    };
+                                })
+                            };
+                        }
+                    },
+                    placeholder: 'Buscar ' + tipo,
+                    allowClear: true,
+                    tags: true,
+                    minimumInputLength: 1
+                });
+            }
+
+            // Inicializar Select2 para diferentes campos
+            inicializarSelect2('#nomcliente', 'cliente');
+            inicializarSelect2('#celcliente', 'celcliente');
+            inicializarSelect2('#equipo', 'equipo');
+            inicializarSelect2('#marca', 'marca');
+            inicializarSelect2('#modelo', 'modelo');
+        });
+    </script>
 @stop

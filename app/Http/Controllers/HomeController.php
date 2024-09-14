@@ -45,11 +45,16 @@ class HomeController extends Controller
             return Orden::where('estado', 'PENDIENTE')->count();
         });
 
+        $bodega = Cache::remember('bodega_count', $cacheTime, function () {
+            return Orden::where('estado', 'EN BODEGA')->count();
+        });
+
 
         return view('home', [
             'numeroDeOrdenes' => $numeroDeOrdenes,
             'entregados' => $entregados,
-            'pendientes' => $pendientes
+            'pendientes' => $pendientes,
+            'bodega' => $bodega,
 
         ]);
     }

@@ -173,5 +173,11 @@ Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->n
 // Actualizar columna reparado
 Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->name('ordenes.update.reparado');
 
+//bodega
+Route::get('/orden/bodega', [OrdenController::class, 'bodega'])->name('ordenes.bodega');
+
+// Ruta para obtener datos vía AJAX
+
+Route::get('/buscar-datos', [OrdenController::class, 'buscarDatos'])->name('buscar.datos');
 
 

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -30,12 +29,16 @@ return new class extends Migration
             $table->string('observaciones', 255)->nullable(); // VARCHAR(255) con valor NULL permitido
             $table->string('notatecnico', 255)->nullable(); // VARCHAR(255) con valor NULL permitido
             $table->string('valor', 20)->nullable(); // VARCHAR(20)
-            $table->string('estado', 10); // VARCHAR(10)
+            $table->string('estado', 10)->index();
+            ; // VARCHAR(10)
             $table->string('fechafin', 10)->nullable(); // VARCHAR(10), con valor NULL permitido
             $table->string('horainicio', 12); // VARCHAR(12)
             $table->string('reparado', 12); // VARCHAR(12)
 
             $table->timestamps(); // Esto añadirá las columnas 'created_at' y 'updated_at'
+
+            // Añadir el índice para 'codigo'
+            $table->index('codigo');
         });
     }
 

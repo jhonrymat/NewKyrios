@@ -49,21 +49,10 @@ class OrdenController extends Controller
         $ultimaOrden = Orden::orderBy('codigo', 'desc')->first();
         $nuevoCodigo = $ultimaOrden ? $ultimaOrden->codigo + 1 : 1; // Si no hay ninguna orden, empezar en 1
 
-        $equipos = Orden::distinct()->pluck('equipo'); // Obtener la lista de equipos
-        $marcas = Orden::distinct()->pluck('marca');   // Obtener la lista de marcas
-        $modelos = Orden::distinct()->pluck('modelo'); // Obtener la lista de modelos
-        $clientes = Orden::distinct()->pluck('nomcliente'); // Obtener la lista de usuarios
-        $telefonos = Orden::distinct()->pluck('celcliente'); // Obtener la lista de usuarios
-
 
 
         return view('ordenes/pendientes/index', [
             'OrdenPen' => $OrdenPen,
-            'equipos' => $equipos,
-            'marcas' => $marcas,
-            'modelos' => $modelos,
-            'clientes' => $clientes,
-            'telefonos' => $telefonos,
             'nuevoCodigo' => $nuevoCodigo,
         ]);
     }
@@ -80,6 +69,20 @@ class OrdenController extends Controller
         }
 
         return view('ordenes/finalizadas/index');
+    }
+
+    public function bodega(Request $request)
+    {
+        if ($request->ajax()) {
+            $ordenes = Orden::where('estado', 'EN BODEGA')
+                ->orderBy('codigo', 'desc')
+                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico']);
+
+            return DataTables::of($ordenes)
+                ->make(true);
+        }
+
+        return view('ordenes/bodega/index');
     }
 
     public function store(Request $request)
@@ -149,6 +152,7 @@ class OrdenController extends Controller
             'notacliente' => 'required|string',
             'observaciones' => 'nullable|string',
             'valor' => 'nullable|numeric',
+            'estado' => 'required|string',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -168,6 +172,7 @@ class OrdenController extends Controller
             'notacliente' => strtoupper($request->notacliente),
             'observaciones' => strtoupper($request->observaciones),
             'valor' => $request->valor,
+            'estado' => $request->estado,
         ]);
 
         return response()->json(['success' => 'Orden actualizada correctamente.']);
@@ -324,6 +329,52 @@ class OrdenController extends Controller
         return response()->json(['success' => 'Estado de reparación actualizado correctamente']);
     }
 
+
+    // buscar equipo
+    public function buscarEquipo(Request $request)
+    {
+        // Obtener el término de búsqueda que el usuario está escribiendo
+        $search = $request->input('q');
+
+        // Si hay una búsqueda, filtrar los clientes por ese término
+        $equipo = Orden::distinct()
+            ->where('equipo', 'LIKE', "%{$search}%")
+            ->pluck('equipo')
+            ->take(5); // Limitar los resultados a 10 para evitar sobrecarga
+
+        // Retornar los resultados en formato JSON
+        return response()->json($equipo);
+    }
+
+    public function buscarDatos(Request $request)
+    {
+        $tipo = $request->get('tipo');
+        $search = $request->get('q');
+
+        $resultados = [];
+
+        switch ($tipo) {
+            case 'cliente':
+                $resultados = Orden::where('nomcliente', 'like', '%' . $search . '%')->distinct()->pluck('nomcliente');
+                break;
+            case 'equipo':
+                $resultados = Orden::where('equipo', 'like', '%' . $search . '%')->distinct()->pluck('equipo');
+                break;
+            case 'marca':
+                $resultados = Orden::where('marca', 'like', '%' . $search . '%')->distinct()->pluck('marca');
+                break;
+            case 'modelo':
+                $resultados = Orden::where('modelo', 'like', '%' . $search . '%')->distinct()->pluck('modelo');
+                break;
+            case 'celcliente':
+                $resultados = Orden::where('celcliente', 'like', '%' . $search . '%')->distinct()->pluck('celcliente');
+                break;
+            default:
+                return response()->json(['error' => 'Tipo no válido'], 400);
+        }
+
+        return response()->json($resultados);
+    }
 
 
 
