@@ -324,6 +324,12 @@ return [
                     'can'   => 'ordenes.finalizadas',
                     'icon'  => 'fas fa-fw fa-check-circle',
                 ],
+                [
+                    'text'  => 'Bodega',
+                    'route' => 'ordenes.bodega',
+                    // 'can'   => 'ordenes.bodego',
+                    'icon'  => 'fas fa-fw fa-cubes',
+                ],
             ],
         ],
         [

@@ -9,6 +9,7 @@
                     <h5 class="modal-title">Editar Orden N°
                         <span id="ordenCodigo"></span>
                     </h5>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -87,17 +88,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="notatecnico">Nota tecnico</label>
-                        <textarea name="notatecnico" id="notatecnico" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="fechafin">Fecha fin</label>
-                        <input type="date" name="fechafin" id="fechafin" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
                         <label for="valor">Valor</label>
                         <input type="text" name="valor" id="valor" class="form-control">
+                    </div>
+                    <div>
+                        <label for="estado">Sacar de bodega</label>
+                        <select id="select-estado" name="estado" class="form-control">
+                            <option value="">Seleccione un estado</option>
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="DE BAJA">DE BAJA</option>
+                            <option value="EN BODEGA">EN BODEGA</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

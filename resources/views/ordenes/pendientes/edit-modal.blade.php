@@ -1,12 +1,14 @@
-<div class="modal fade" id="modal-edit-{{ $orden->codigo }}" tabindex="-1" role="dialog"
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form id="editForm-{{ $orden->codigo }}">
+            <form id="editForm" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Editar Orden N° {{ $orden->codigo }}</h5>
+                    <h5 class="modal-title">Editar Orden N°
+                        <span id="ordenCodigoE"></span>
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -15,89 +17,128 @@
                     <!-- Mostrar errores aquí -->
                     <div class="errors"></div>
 
-                    <div class="form-group">
-                        <label for="tecnico">Técnico</label>
-                        <input type="text" name="tecnico" class="form-control" value="{{ $orden->tecnico }}"
-                            readonly>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="tecnicoE">Técnico</label>
+                                <input type="text" name="tecnicoE" id="tecnicoE" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="fechaE">Fecha</label>
+                                <input type="text" name="fechaE" id="fechaE" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="horainicioE">Hora de Inicio</label>
+                                <input type="text" name="horainicioE" id="horainicioE" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nomclienteE">Nombre del Cliente</label>
+                                <input type="text" name="nomclienteE" id="nomclienteE" class="form-control"
+                                    required >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="celclienteE">Celular</label>
+                                <input type="tel" name="celclienteE" id="celclienteE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="equipoE">Equipo</label>
+                                <input type="text" name="equipoE" id="equipoE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="marcaE">Marca</label>
+                                <input type="text" name="marcaE" id="marcaE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="modeloE">Modelo</label>
+                                <input type="text" name="modeloE" id="modeloE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="serialE">Serial</label>
+                                <input type="text" name="serialE" id="serialE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="fecha">Fecha</label>
-                        <input type="text" name="fecha" class="form-control" value="{{ $orden->fecha }}" readonly>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="cargadorE">Cargador</label>
+                                <input type="text" name="cargadorE" id="cargadorE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="bateriaE">Batería</label>
+                                <input type="text" name="bateriaE" id="bateriaE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="otrosE">Otros</label>
+                                <input type="text" name="otrosE" id="otrosE" class="form-control" required
+                                    >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="notaclienteE">Nota del Cliente</label>
+                                <textarea name="notaclienteE" id="notaclienteE" class="form-control" rows="4" ></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="observacionesE">Observaciones</label>
+                                <textarea name="observacionesE" id="observacionesE" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="estadoE">Pasar a bodega</label>
+                                <select name="estadoE" class="form-control">
+                                    <option value="PENDIENTE">PENDIENTE</option>
+                                    <option value="EN BODEGA">BODEGA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="valorE">Valor negociado</label>
+                                <input type="number" name="valorE" id="valorE" class="form-control" required>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="horainicio">Hora de Inicio</label>
-                        <input type="text" name="horainicio" class="form-control" value="{{ $orden->horainicio }}"
-                            readonly>
-                    </div>
-
-                    <!-- Resto de los campos editables -->
-                    <div class="form-group">
-                        <label for="nomcliente">Nombre del Cliente</label>
-                        <input type="text" name="nomcliente" class="form-control" value="{{ $orden->nomcliente }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="celcliente">Celular</label>
-                        <input type="tel" name="celcliente" class="form-control" value="{{ $orden->celcliente }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="equipo">Equipo</label>
-                        <input type="text" name="equipo" class="form-control" value="{{ $orden->equipo }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="marca">Marca</label>
-                        <input type="text" name="marca" class="form-control" value="{{ $orden->marca }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="modelo">Modelo</label>
-                        <input type="text" name="modelo" class="form-control" value="{{ $orden->modelo }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="serial">Serial</label>
-                        <input type="text" name="serial" class="form-control" value="{{ $orden->serial }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cargador">Cargador</label>
-                        <input type="text" name="cargador" class="form-control" value="{{ $orden->cargador }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bateria">Batería</label>
-                        <input type="text" name="bateria" class="form-control" value="{{ $orden->bateria }}"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="otros">Otros</label>
-                        <input type="text" name="otros" class="form-control" value="{{ $orden->otros }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="notacliente">Nota del Cliente</label>
-                        <textarea name="notacliente" class="form-control" rows="4">{{ $orden->notacliente }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="observaciones">Observaciones</label>
-                        <textarea name="observaciones" class="form-control" rows="4">{{ $orden->observaciones }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="valor">Valor</label>
-                        <input type="text" name="valor" class="form-control" value="{{ $orden->valor }}">
-                    </div>
                 </div>
 
                 <div class="modal-footer">

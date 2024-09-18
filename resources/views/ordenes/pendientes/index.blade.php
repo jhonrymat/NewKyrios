@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('plugins.Select2', true)
+@section('plugins.Select2', true, 'plugins.Sweetalert2', true)
 
 @section('title', 'Ordenes pendientes')
 
@@ -24,9 +24,10 @@
                     <div class="d-flex justify-content-end">
                         <button data-toggle="modal" data-target="#createOrderModal" class="btn btn-primary btn-sm mb-2"
                             title="Crear" id="btnCreateOrder">
-                            <i class="fa fa-plus-circle"></i> Agregar orden
+                            <i class="fa fa-plus-circle"></i> <span>Agregar orden</span>
                         </button>
                     </div>
+
                 </div>
                 <div class="card-body">
                     <table id="ordenes-table" class="dt-container dt-empty-footer">
@@ -39,16 +40,15 @@
                                 <th>Celular</th>
                                 <th>Tecnico</th>
                                 <th>valor</th>
-                                <th>Listo</th>
-                                <th>Configuraciones</th>
                                 <th class="none">Modelo</th>
                                 <th class="none">Nota Cliente</th>
                                 <th class="none">Observaciones</th>
+                                <th>Listo</th>
+                                <th>Configuraciones</th>
                             </tr>
                         </thead>
                         <tbody style="text-align: center">
-                            @foreach ($OrdenPen as $orden)
-                                <tr>
+                            {{-- <tr>
                                     <td>{{ $orden->codigo }}</td>
                                     <td>{{ $orden->nomcliente }}</td>
                                     <td>{{ $orden->marca }}</td>
@@ -57,8 +57,6 @@
                                     <td>{{ $orden->tecnico }}</td>
                                     <td>{{ $orden->valor }}</td>
                                     <td>
-                                        {{-- <input type="checkbox" class="toggle-reparado" data-codigo="{{ $orden->codigo }}"
-                                            {{ $orden->reparado == 'reparado' ? 'checked' : '' }}> --}}
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input toggleReparado"
                                                 id="switchReparado{{ $orden->codigo }}" data-codigo="{{ $orden->codigo }}"
@@ -91,14 +89,13 @@
                                     <td>{{ $orden->modelo }}</td>
                                     <td>{{ $orden->notacliente }}</td>
                                     <td>{{ $orden->observaciones }}</td>
-                                </tr>
-                                {{-- modal finalizar --}}
-                                @include('ordenes.pendientes.finalizar-modal')
-                                {{-- modal edit --}}
-                                @include('ordenes.pendientes.edit-modal')
-                                <!-- Modal de Confirmación de Eliminación -->
-                                @include('ordenes.pendientes.delete-modal')
-                            @endforeach
+                                </tr> --}}
+                            {{-- modal finalizar --}}
+                            @include('ordenes.pendientes.finalizar-modal')
+                            {{-- modal edit --}}
+                            @include('ordenes.pendientes.edit-modal')
+                            <!-- Modal de Confirmación de Eliminación -->
+                            @include('ordenes.pendientes.delete-modal')
                             {{-- modal create --}}
                             @include('ordenes.pendientes.create-modal')
                         </tbody>
@@ -113,19 +110,17 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css">
     <style>
-        #scanner-container {
-            width: 100%;
-            max-width: 640px;
-            /* Limitar el ancho */
-            height: 350px;
-            position: relative;
-            border: 1px solid #ddd;
-        }
+        /* Mostrar solo el ícono en pantallas pequeñas (móviles) */
+        @media (max-width: 768px) {
+            #btnCreateOrder span {
+                display: none;
+                /* Ocultar el texto */
+            }
 
-        #scanner-container canvas,
-        #scanner-container video {
-            width: 100% !important;
-            height: auto !important;
+            #btnCreateOrder i {
+                font-size: 1.5rem;
+                /* Ajustar el tamaño del icono si es necesario */
+            }
         }
     </style>
 @stop
@@ -139,8 +134,93 @@
     <script>
         $(document).ready(function() {
             $('#ordenes-table').DataTable({
-                "language": {
-                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('ordenes.pendientes') }}", // Ruta que apuntará a tu método finalizadas
+                columns: [{
+                        data: 'codigo',
+                        name: 'codigo'
+                    },
+                    {
+                        data: 'nomcliente',
+                        name: 'nomcliente'
+                    },
+                    {
+                        data: 'marca',
+                        name: 'marca'
+                    },
+                    {
+                        data: 'fecha',
+                        name: 'fecha'
+                    },
+
+                    {
+                        data: 'celcliente',
+                        name: 'celcliente'
+                    },
+                    {
+                        data: 'tecnico',
+                        name: 'tecnico'
+                    },
+                    {
+                        data: 'valor',
+                        name: 'valor'
+                    },
+
+                    {
+                        data: 'modelo',
+                        name: 'modelo'
+                    },
+                    {
+                        data: 'notacliente',
+                        name: 'notacliente'
+                    },
+                    {
+                        data: 'observaciones',
+                        name: 'observaciones'
+                    },
+                    {
+                        data: 'codigo',
+                        name: 'codigo',
+                        render: function(data, type, row) {
+                            return `
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input toggleReparado"
+                                        id="switchReparado${data}" data-codigo="${data}"
+                                        ${row.reparado == 'reparado' ? 'checked' : ''}>
+                                    <label class="custom-control-label"
+                                        for="switchReparado${data}"></label>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: 'codigo',
+                        name: 'codigo',
+                        render: function(data, type, row) {
+                            return `
+                                <a href="/admin/orden/${data}/pendientes" target="_blank" class="btn btn-warning btn-sm mb-2">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <button class="btn btn-success btn-sm mb-2 finalizarOrden" data-id="${data}">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                                <a data-toggle="modal" data-id="${data}"
+                                    class="btn btn-primary btn-sm mb-2 editarOrden" title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm mb-2 deleteApp"
+                                    data-id="${data}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+
+                            `;
+                        }
+                    }
+                ],
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 },
                 responsive: true,
                 columnDefs: [{
@@ -155,40 +235,159 @@
     </script>
     {{-- editar --}}
     <script>
-        $('form[id^="editForm-"]').on('submit', function(e) {
+        $(document).on('click', '.editarOrden', function() {
+            var ordenId = $(this).data('id'); // Obtiene el id de la orden
+
+            $.ajax({
+                url: `/admin/orden/${ordenId}/ajax`, // Ajusta según tu ruta
+                type: 'GET',
+                success: function(data) {
+                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
+                    var fechafinOriginal = data.fechafin;
+                    if (fechafinOriginal != null) {
+                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
+                            '-'); // Convertir a 'DD/MM/YYYY'
+                    } else {
+                        // Obtener la fecha actual en formato 'YYYY-MM-DD' si no hay fecha original
+                        var today = new Date();
+                        var day = String(today.getDate()).padStart(2,
+                            '0'); // Asegurarse de que el día tenga dos dígitos
+                        var month = String(today.getMonth() + 1).padStart(2,
+                            '0'); // Los meses en JS son de 0 a 11
+                        var year = today.getFullYear();
+
+                        var fechaFormateada = day + '/' + month + '/' +
+                            year; // Formatear como 'YYYY-MM-DD'
+                    } // Completar los campos del formulario con los datos recibidos
+
+                    $('#ordenCodigoE').text(data.codigo);
+                    $('#tecnicoE').val(data.tecnico);
+                    $('#fechaE').val(data.fecha);
+                    $('#horainicioE').val(data.horainicio);
+                    $('#nomclienteE').val(data.nomcliente);
+                    $('#celclienteE').val(data.celcliente);
+                    $('#equipoE').val(data.equipo);
+                    $('#marcaE').val(data.marca);
+                    $('#modeloE').val(data.modelo);
+                    $('#serialE').val(data.serial);
+                    $('#cargadorE').val(data.cargador);
+                    $('#bateriaE').val(data.bateria);
+                    $('#otrosE').val(data.otros);
+                    $('#notaclienteE').val(data.notacliente);
+                    $('#observacionesE').val(data.observaciones);
+                    $('#notatecnicoE').val(data.notatecnico);
+                    $('#valorE').val(data.valor);
+                    $('#fechafinE').val(fechaFormateada);
+
+                    // Establecer la acción del formulario
+                    $('#editForm').attr('action', `/admin/orden/${ordenId}`);
+                    $('#editOrderModal').modal('show'); // Mostrar el modal
+                }
+            });
+        });
+        $('#editForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
-            var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
             var formData = $(this).serialize(); // Serializar los datos del formulario
+            var ordenId = $(this).attr('action').split('/').pop(); // Obtener el ID de la orden desde la URL
 
             $.ajax({
                 type: "POST",
-                url: "{{ route('ordenes.update', '') }}/" + appId, // Generar correctamente la URL
+                url: "{{ route('ordenes.update', '') }}/" + ordenId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
-                    alert("Orden actualizada con éxito");
-                    location.reload(); // Opcional: recargar la página o actualizar la vista
+                    Swal.fire(
+                        'Actualizada',
+                        'La orden ha sido Actualizada correctamente.',
+                        'success'
+                    );
+                    $('#editOrderModal').modal('hide'); // Cerrar modal
+                    $('#ordenes-table').DataTable().ajax.reload();
                 },
                 error: function(error) {
                     console.log(error);
-                    alert("Error al actualizar la orden");
+                    Swal.fire(
+                        'Error',
+                        'Hubo un problema al actualizar la orden.',
+                        'error'
+                    );
                 }
             });
         });
     </script>
     {{-- Finalizar --}}
     <script>
-        $('form[id^="finalizarForm-"]').on('submit', function(e) {
-            e.preventDefault(); // Evitar la recarga de la página
-            var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
-            var formData = $(this).serialize(); // Serializar los datos del formulario
+        $(document).on('click', '.finalizarOrden', function() {
+            var ordenId = $(this).data('id'); // Obtiene el id de la orden
 
             $.ajax({
-                type: "POST",
-                url: "{{ route('ordenes.finalizar', '') }}/" + appId, // Generar correctamente la URL
+                url: `/admin/orden/${ordenId}/ajax`, // Ajusta según tu ruta
+                type: 'GET',
+                success: function(data) {
+                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
+                    var fechafinOriginal = data.fechafin;
+                    if (fechafinOriginal != null) {
+                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
+                            '-'); // Convertir a 'DD/MM/YYYY'
+                    } else {
+                        // Obtener la fecha actual en formato 'YYYY-MM-DD' si no hay fecha original
+                        var today = new Date();
+                        var day = String(today.getDate()).padStart(2,
+                            '0'); // Asegurarse de que el día tenga dos dígitos
+                        var month = String(today.getMonth() + 1).padStart(2,
+                            '0'); // Los meses en JS son de 0 a 11
+                        var year = today.getFullYear();
+
+                        var fechaFormateada = day + '/' + month + '/' +
+                            year; // Formatear como 'YYYY-MM-DD'
+                    } // Completar los campos del formulario con los datos recibidos
+
+                    $('#ordenCodigo').text(data.codigo);
+                    $('#tecnico').val(data.tecnico);
+                    $('#fecha').val(data.fecha);
+                    $('#horainicio').val(data.horainicio);
+                    $('#nomclienteFin').val(data.nomcliente);
+                    $('#celcliente').val(data.celcliente);
+                    $('#equipoFin').val(data.equipo);
+                    $('#marcaFin').val(data.marca);
+                    $('#modeloFin').val(data.modelo);
+                    $('#serial').val(data.serial);
+                    $('#cargador').val(data.cargador);
+                    $('#bateria').val(data.bateria);
+                    $('#otros').val(data.otros);
+                    $('#notacliente').val(data.notacliente);
+                    $('#observaciones').val(data.observaciones);
+                    $('#notatecnico').val(data.notatecnico);
+                    $('#valor').val(data.valor);
+                    $('#fechafin').val(fechaFormateada);
+
+                    // Establecer la acción del formulario
+                    $('#finalizarForm').attr('action', `/admin/orden/finalizar/${ordenId}`);
+                    $('#finalizarOrderModal').modal('show'); // Mostrar el modal
+                }
+            });
+        });
+
+        $('#finalizarForm').on('submit', function(e) {
+            e.preventDefault(); // Evitar la recarga de la página
+            var formData = $(this).serialize(); // Serializar los datos del formulario
+            var ordenId = $(this).attr('action').split('/').pop(); // Obtener el ID de la orden desde la URL
+
+            $.ajax({
+                type: "PUT",
+                url: "/admin/orden/finalizar/" +
+                    ordenId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
-                    alert("Orden finalizada con éxito");
-                    location.reload(); // Opcional: recargar la página o actualizar la vista
+                    if (response.success) {
+                        Swal.fire(
+                            'Actualizado',
+                            'La orden ha sido finalizada correctamente.',
+                            'success'
+                        );
+                        $('#finalizarOrderModal').modal('hide'); // Cerrar modal
+                        $('#ordenes-table').DataTable().ajax.reload();
+                        document.getElementById('finalizarForm').reset();
+                    }
                 },
                 error: function(error) {
                     console.log(error);
@@ -198,36 +397,47 @@
         });
     </script>
     <script>
-        $(document).ready(function() {
-            // Usar delegated event para asegurar que siempre se capture el evento, incluso en elementos dinámicos
-            $(document).on('click', '.deleteApp', function() {
-                var ordenCodigo = $(this).data('appid'); // Obtén el código de la orden
-                console.log("Código de la orden a eliminar: " + ordenCodigo); // Verifica en la consola
-                $('#delete-btn').data('appid', ordenCodigo); // Asigna el código al botón de confirmación
-            });
-
-            // Confirmar la eliminación al hacer clic en el botón del modal
-            $('#delete-btn').click(function() {
-                var ordenCodigo = $(this).data('appid'); // Obtiene el código de la orden
-                if (ordenCodigo) {
+        $(document).on('click', '.deleteApp', function() {
+            var ordenId = $(this).data('id');
+            $('#delete-btn').data('id', ordenId);
+            $('#deleteConfirmationModal').modal('show'); // Show the confirmation modal
+        });
+        $('#delete-btn').click(function() {
+            var ordenId = $(this).data('id');
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('ordenes.update', '') }}/" +
-                            ordenCodigo, // Asegúrate de ajustar esta URL según tu enrutamiento
+                        url: `/admin/orden/${ordenId}`,
                         type: 'DELETE',
                         data: {
-                            _token: $('meta[name="csrf-token"]').attr('content') // Token CSRF
+                            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
                         },
                         success: function(response) {
-                            alert("Orden eliminada con éxito");
-                            location.reload(); // Recargar la página
+                            Swal.fire(
+                                'Eliminado',
+                                'La orden ha sido eliminada correctamente.',
+                                'success'
+                            );
+                            $('#deleteConfirmationModal').modal('hide');
+                            $('#ordenes-table').DataTable().ajax.reload(); // Recargar la tabla
                         },
                         error: function(error) {
-                            console.log(error);
-                            alert("Error al eliminar la orden");
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al eliminar la orden.',
+                                'error'
+                            );
                         }
                     });
-                } else {
-                    console.log("Código de la orden no definido");
                 }
             });
         });
@@ -243,8 +453,25 @@
                     url: "{{ route('ordenes.store') }}", // Asegúrate de que esta es la ruta correcta
                     data: formData,
                     success: function(response) {
-                        alert("Orden creada con éxito"); // Mensaje de éxito
-                        location.reload(); // Recargar la página o actualizar los datos
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Orden creada con éxito. Número de Orden: ' + response
+                                .id,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        $('#createOrderModal').modal('hide'); // Cerrar modal
+                        $('#ordenes-table').DataTable().ajax.reload();
+                        document.getElementById('createOrderForm').reset();
+                        // Restablecer Select2 también
+                        $('#nomcliente').val(null).trigger(
+                            'change'); // Restablecer Select2 para el cliente
+                        $('#equipo').val(null).trigger(
+                            'change');
+                        $('#marca').val(null).trigger(
+                            'change');
+                        $('#modelo').val(null).trigger(
+                            'change');
                     },
                     error: function(xhr) {
                         // Limpiar cualquier error anterior
@@ -261,25 +488,6 @@
 
                         $('#createOrderForm').prepend(
                             errorHtml); // Muestra los errores en el modal
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('#btnCreateOrder').click(function() {
-                // Hacer la petición AJAX al abrir el modal
-                $.ajax({
-                    url: "{{ route('getLatestOrderId') }}",
-                    type: "GET",
-                    success: function(data) {
-                        // Actualizar el campo del código de orden con el nuevo ID
-                        $('#nuevoCodigoInput').val(data
-                            .nuevoCodigo); // Aquí pones el valor en el input
-                    },
-                    error: function() {
-                        alert('Error al obtener el nuevo código de orden');
                     }
                 });
             });
@@ -308,6 +516,7 @@
                             timer: 1500
                         });
                     }
+                    $('#ordenes-table').DataTable().ajax.reload();
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) { // Unprocessable Entity (validación fallida)
@@ -332,52 +541,44 @@
             });
         });
     </script>
+    {{-- optimizando select2 --}}
     <script>
-        document.getElementById('start-scan').addEventListener('click', function() {
-            // Mostrar el contenedor de la cámara solo cuando comience el escaneo
-            document.getElementById('scanner-container').style.display = 'block';
+        $(document).ready(function() {
+            function inicializarSelect2(selector, tipo) {
+                $(selector).select2({
+                    ajax: {
+                        url: "{{ route('buscar.datos') }}",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                q: params.term,
+                                tipo: tipo // Definir el tipo de búsqueda
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: $.map(data, function(item) {
+                                    return {
+                                        id: item,
+                                        text: item
+                                    };
+                                })
+                            };
+                        }
+                    },
+                    placeholder: 'Buscar ' + tipo,
+                    allowClear: true,
+                    tags: true,
+                    minimumInputLength: 1
+                });
+            }
 
-            Quagga.init({
-                inputStream: {
-                    type: "LiveStream",
-                    target: document.querySelector('#scanner-container'),
-                    constraints: {
-                        width: 640,
-                        height: 480,
-                        facingMode: "environment"
-                    }
-                },
-                decoder: {
-                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"]
-                }
-            }, function(err) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                console.log("Iniciando Quagga");
-                Quagga.start(); // Inicia el escáner
-                document.getElementById('stop-scan').style.display = 'inline';
-            });
-
-            Quagga.onDetected(function(result) {
-                var code = result.codeResult.code;
-                document.getElementById('serial').value = code; // Poner el código de barras en el input
-                Quagga.stop(); // Detener el escáner cuando se detecta un código
-
-                // Ocultar el contenedor del escáner después de la detección
-                document.getElementById('scanner-container').style.display = 'none';
-                document.getElementById('stop-scan').style.display = 'none';
-                document.getElementById('scanner-container').innerHTML = ''; // Limpiar la cámara
-            });
-        });
-
-        // Botón para detener la cámara manualmente
-        document.getElementById('stop-scan').addEventListener('click', function() {
-            Quagga.stop();
-            document.getElementById('scanner-container').style.display = 'none';
-            document.getElementById('scanner-container').innerHTML = ''; // Limpiar el contenedor del video
-            this.style.display = 'none';
+            // Inicializar Select2 para diferentes campos
+            inicializarSelect2('#nomcliente', 'cliente');
+            inicializarSelect2('#equipo', 'equipo');
+            inicializarSelect2('#marca', 'marca');
+            inicializarSelect2('#modelo', 'modelo');
         });
     </script>
 @stop

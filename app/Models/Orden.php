@@ -14,6 +14,6 @@ class Orden extends Model
     protected $fillable = [
         'fecha', 'tecnico', 'nomcliente', 'celcliente', 'equipo', 'marca', 'modelo', 'serial',
         'cargador', 'bateria', 'otros', 'notacliente', 'observaciones', 'notatecnico',
-        'valor', 'estado', 'fechafin', 'horainicio'
+        'valor', 'estado', 'fechafin', 'horainicio', 'reparado'
     ];
 }

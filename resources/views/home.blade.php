@@ -11,7 +11,7 @@
         <div class="container-fluid">
 
             <div class="row">
-                <div class="col-lg-4 col-6">
+                <div class="col-lg-3 col-12">
 
                     <div class="small-box bg-info">
                         <div class="inner">
@@ -21,12 +21,12 @@
                         <div class="icon">
                             <i class="fas fa-chart-pie"></i>
                         </div>
-                        <a href="admin/estadisticas" class="small-box-footer">Ver más <i
+                        <a href="#" class="small-box-footer">Ver más <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-6">
+                <div class="col-lg-3 col-12">
 
                     <div class="small-box bg-success">
                         <div class="inner">
@@ -36,12 +36,12 @@
                         <div class="icon">
                             <i class="fas fa-calendar"></i>
                         </div>
-                        <a href="admin/estadisticas" class="small-box-footer">Ver más <i
+                        <a href="admin/orden/finalizadas" class="small-box-footer">Ver más <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-6">
+                <div class="col-lg-3 col-12">
 
                     <div class="small-box bg-warning">
                         <div class="inner">
@@ -51,7 +51,21 @@
                         <div class="icon">
                             <i class="fas fa-calendar-day"></i>
                         </div>
-                        <a href="admin/contactos" class="small-box-footer">Ver más <i
+                        <a href="admin/orden/pendiente" class="small-box-footer">Ver más <i
+                                class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-12">
+
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ $bodega }}</h3>
+                            <p>Bodega</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <a href="admin/orden/bodega" class="small-box-footer">Ver más <i
                                 class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>

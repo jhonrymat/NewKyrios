@@ -2,7 +2,7 @@
 
 @section(['plugins.Select2', true, 'plugins.sweetalert2', true])
 
-@section('title', 'Ordenes finalizadas')
+@section('title', 'Bodega')
 
 @section('content')
     <div class="row">
@@ -20,7 +20,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Listado de Ordenes Finalizadas</h3>
+                    <h3 class="card-title">Bodega</h3>
                 </div>
                 <div class="card-body">
                     <table id="ordenes-table" class="dt-container dt-empty-footer">
@@ -41,8 +41,8 @@
                 </div>
             </div>
         </div>
-        @include('ordenes.finalizadas.edit-modal')
-        @include('ordenes.finalizadas.delete-modal')
+        @include('ordenes.bodega.edit-modal')
+        @include('ordenes.bodega.delete-modal')
     </div>
 @endsection
 @section('css')
@@ -59,7 +59,7 @@
             $('#ordenes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('ordenes.finalizadas') }}", // Ruta que apuntará a tu método finalizadas
+                ajax: "{{ route('ordenes.bodega') }}", // Ruta que apuntará a tu método finalizadas
                 columns: [{
                         data: 'codigo',
                         name: 'codigo'
@@ -93,7 +93,7 @@
                         name: 'codigo',
                         render: function(data, type, row) {
                             return `
-                                <a href="/admin/orden/${data}/finalizados" target="_blank" class="btn btn-warning btn-sm">
+                                <a href="/admin/orden/${data}/pendiente" target="_blank" class="btn btn-warning btn-sm">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
                                 <button class="btn btn-primary btn-sm editOrder" data-id="${data}">
@@ -124,15 +124,6 @@
                 url: `/admin/orden/${ordenId}/edit`, // Ajusta según tu ruta
                 type: 'GET',
                 success: function(data) {
-                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
-                    var fechafinOriginal = data.fechafin;
-                    if (fechafinOriginal != null) {
-                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
-                            '-'); // Convertir a 'DD/MM/YYYY'
-                    }
-
-
-
                     // Completar los campos del formulario con los datos recibidos
                     $('#ordenCodigo').text(data.codigo);
                     $('#tecnico').val(data.tecnico);
@@ -151,10 +142,10 @@
                     $('#observaciones').val(data.observaciones);
                     $('#notatecnico').val(data.notatecnico);
                     $('#valor').val(data.valor);
-                    $('#fechafin').val(fechaFormateada);
+                    $('#select-estado').val(data.estado);
 
                     // Establecer la acción del formulario
-                    $('#editForm').attr('action', `/admin/orden/edit/finalizadas/${ordenId}`);
+                    $('#editForm').attr('action', `/admin/orden/edit/bodega/${ordenId}`);
                     $('#editOrderModal').modal('show'); // Mostrar el modal
                 }
             });
@@ -167,7 +158,7 @@
 
             $.ajax({
                 type: "PUT",
-                url: "/admin/orden/edit/finalizadas/" +
+                url: "/admin/orden/edit/bodega/" +
                     ordenId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
@@ -239,4 +230,6 @@
             });
         });
     </script>
+
+
 @stop

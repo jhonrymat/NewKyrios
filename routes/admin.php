@@ -163,15 +163,22 @@ Route::get('/orden/finalizadas', [OrdenController::class, 'finalizadas'])->name(
 Route::post('/orden/store', [OrdenController::class, 'store'])->name('ordenes.store');
 Route::put('orden/{codigo}', [OrdenController::class, 'update'])->middleware('can:ordenes.update')->name('ordenes.update');
 Route::delete('orden/{codigo}', [OrdenController::class, 'destroy'])->middleware('can:ordenes.destroy')->name('ordenes.destroy');
-Route::get('/get-latest-order-id', [OrdenController::class, 'getLatestOrderId'])->name('getLatestOrderId');
 Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->name('ordenes.edit');
 
-Route::put('orden/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->name('ordenes.update.finalizadas');
+Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->name('ordenes.update.finalizadas');
 // Finalizar orden pendiente
 Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->name('ordenes.finalizar');
 
 // Actualizar columna reparado
 Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->name('ordenes.update.reparado');
 
+//bodega
+Route::get('/orden/bodega', [OrdenController::class, 'bodega'])->name('ordenes.bodega');
+//Actualizar datos de la bodega
+Route::put('orden/edit/bodega/{codigo}', [OrdenController::class, 'updateBodega'])->name('ordenes.update.bodega');
+// Ruta para obtener datos vía AJAX
 
+Route::get('/buscar-datos', [OrdenController::class, 'buscarDatos'])->name('buscar.datos');
 
+// ajax para obtener datos para finalizar orden
+Route::get('/orden/{codigo}/ajax', [OrdenController::class, 'Orden'])->name('ordenes.ajax');
