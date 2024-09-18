@@ -126,8 +126,11 @@
                 success: function(data) {
                     // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
                     var fechafinOriginal = data.fechafin;
-                    var fechaFormateada = fechafinOriginal.split('/').reverse().join(
-                        '-'); // Convertir a 'DD/MM/YYYY'
+                    if (fechafinOriginal != null) {
+                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
+                            '-'); // Convertir a 'DD/MM/YYYY'
+                    }
+
 
 
                     // Completar los campos del formulario con los datos recibidos
@@ -151,32 +154,40 @@
                     $('#fechafin').val(fechaFormateada);
 
                     // Establecer la acción del formulario
-                    $('#editForm').attr('action', `/admin/orden/finalizadas/${ordenId}`);
+                    $('#editForm').attr('action', `/admin/orden/edit/finalizadas/${ordenId}`);
                     $('#editOrderModal').modal('show'); // Mostrar el modal
                 }
             });
         });
 
-        $('form[id^="editForm-"]').on('submit', function(e) {
+        $('#editForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
-            var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
             var formData = $(this).serialize(); // Serializar los datos del formulario
+            var ordenId = $(this).attr('action').split('/').pop(); // Obtener el ID de la orden desde la URL
 
             $.ajax({
                 type: "PUT",
-                url: "/admin/orden/finalizadas/" +
-                    appId, // Generar correctamente la URL
+                url: "/admin/orden/edit/finalizadas/" +
+                    ordenId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
                     if (response.success) {
-                        alert("Orden actualizada correctamente");
+                        Swal.fire(
+                            'Actualizado',
+                            'La orden ha sido actualizada correctamente.',
+                            'success'
+                        );
                         $('#editOrderModal').modal('hide'); // Cerrar modal
                         $('#ordenes-table').DataTable().ajax.reload();
                     }
                 },
                 error: function(error) {
                     console.log(error);
-                    alert("Error al actualizar la orden");
+                    Swal.fire(
+                        'Error',
+                        'Hubo un problema al actualizar la orden.',
+                        'error'
+                    );
                 }
             });
         });

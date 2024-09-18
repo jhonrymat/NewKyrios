@@ -23,20 +23,14 @@
                         ];
                     @endphp --}}
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="codigo">Orden N°</label>
-                                <input type="text" id="nuevoCodigoInput" class="form-control" disabled>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="tecnico">Técnico</label>
                                 <input type="text" name="tecnico" class="form-control"
                                     value="{{ Auth::user()->name }}" readonly>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="fecha">Fecha</label>
                                 <input type="text" name="fecha" class="form-control" value="{{ now() }}"
@@ -122,8 +116,6 @@
                             </div>
                             <input type="text" class="form-control" id="serial" name="serial" placeholder=""
                                 required>
-                            <button id="start-scan" class="btn btn-primary">Escanear</button>
-                            <button id="stop-scan" class="btn btn-danger" style="display:none;">Detener</button>
                         </div>
                     </div>
 

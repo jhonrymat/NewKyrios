@@ -53,21 +53,28 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="equipoFin">Equipo</label>
+                                <input type="text" name="equipoFin" id="equipoFin" class="form-control" required
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="marcaFin">Marca</label>
                                 <input type="text" name="marcaFin" id="marcaFin" class="form-control" required
                                     readonly>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="modeloFin">Modelo</label>
                                 <input type="text" name="modeloFin" id="modeloFin" class="form-control" required
                                     readonly>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="serial">Serial</label>
                                 <input type="text" name="serial" id="serial" class="form-control" required
@@ -123,7 +130,11 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="valor">Valor Final</label>
-                                <input type="text" name="valor" id="valor" class="form-control" required>
+                                <input type="number" name="valor" id="valor" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechafin">Fecha Fin</label>
+                                <input type="text" name="fechafin" id="fechafin" class="form-control" readonly>
                             </div>
                         </div>
                     </div>

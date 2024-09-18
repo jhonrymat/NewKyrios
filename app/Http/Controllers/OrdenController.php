@@ -119,7 +119,7 @@ class OrdenController extends Controller
         $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fechaOriginal)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
 
 
-        Orden::create([
+        $orden = Orden::create([
             'fecha' => $fechaFormateada,
             'nomcliente' => strtoupper($request->nomcliente),
             'celcliente' => strtoupper($request->celcliente),
@@ -139,10 +139,100 @@ class OrdenController extends Controller
 
         ]);
 
-        return response()->json(['success' => 'Orden creada correctamente.']);
+        return response()->json([
+            'success' => true,
+            'id' => $orden->codigo, // Enviar el ID generado de la nueva orden
+        ]);
     }
 
     public function update(Request $request, $codigo)
+    {
+        $request->validate([
+            'nomclienteE' => 'required|string|max:255',
+            'celclienteE' => 'required|numeric',
+            'equipoE' => 'required|string|max:255',
+            'marcaE' => 'required|string|max:255',
+            'modeloE' => 'required|string|max:255',
+            'serialE' => 'required|string|max:255',
+            'cargadorE' => 'required|string|max:255',
+            'bateriaE' => 'required|string|max:255',
+            'otrosE' => 'required|string|max:255',
+            'notaclienteE' => 'required|string',
+            'observacionesE' => 'nullable|string',
+            'valorE' => 'nullable|numeric',
+            'estadoE' => 'required|string',
+        ]);
+
+        // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
+        $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Actualizar la orden con los nuevos datos
+        $orden->update([
+            'nomcliente' => strtoupper($request->nomclienteE),
+            'celcliente' => strtoupper($request->celclienteE),
+            'equipo' => strtoupper($request->equipoE),
+            'marca' => strtoupper($request->marcaE),
+            'modelo' => strtoupper($request->modeloE),
+            'serial' => strtoupper($request->serialE),
+            'cargador' => strtoupper($request->cargadorE),
+            'bateria' => strtoupper($request->bateriaE),
+            'otros' => strtoupper($request->otrosE),
+            'notacliente' => strtoupper($request->notaclienteE),
+            'observaciones' => strtoupper($request->observacionesE),
+            'valor' => $request->valorE,
+            'estado' => $request->estadoE,
+        ]);
+
+        return response()->json(['success' => 'Orden actualizada correctamente.']);
+    }
+
+    //finalizar orden
+    public function finalizar(Request $request, $codigo)
+    {
+        $request->validate([
+            'nomclienteFin' => 'required|string|max:255',
+            'celcliente' => 'required|numeric',
+            'equipoFin' => 'required|string|max:255',
+            'marcaFin' => 'required|string|max:255',
+            'modeloFin' => 'required|string|max:255',
+            'serial' => 'required|string|max:255',
+            'cargador' => 'required|string|max:255',
+            'bateria' => 'required|string|max:255',
+            'otros' => 'required|string|max:255',
+            'notacliente' => 'required|string',
+            'observaciones' => 'nullable|string',
+            'valor' => 'required|numeric',
+            'notatecnico' => 'required|string',
+            'fechafin' => 'required|string',
+        ]);
+
+        // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
+        $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Actualizar la orden con los nuevos datos
+        $orden->update([
+            'nomcliente' => strtoupper($request->nomclienteFin),
+            'celcliente' => strtoupper($request->celcliente),
+            'equipo' => strtoupper($request->equipoFin),
+            'marca' => strtoupper($request->marcaFin),
+            'modelo' => strtoupper($request->modeloFin),
+            'serial' => strtoupper($request->serial),
+            'cargador' => strtoupper($request->cargador),
+            'bateria' => strtoupper($request->bateria),
+            'otros' => strtoupper($request->otros),
+            'notacliente' => strtoupper($request->notacliente),
+            'observaciones' => strtoupper($request->observaciones),
+            'valor' => $request->valor,
+            'notatecnico' => strtoupper($request->notatecnico),
+            'fechafin' => $request->fechafin,
+            'reparado' => 'reparado',
+            'estado' => 'ENTREGADO',
+        ]);
+
+        return response()->json(['success' => 'Orden actualizada correctamente.']);
+    }
+
+    public function updateBodega(Request $request, $codigo)
     {
         $request->validate([
             'nomcliente' => 'required|string|max:255',
@@ -157,7 +247,6 @@ class OrdenController extends Controller
             'notacliente' => 'required|string',
             'observaciones' => 'nullable|string',
             'valor' => 'nullable|numeric',
-            'estado' => 'required|string',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -177,14 +266,11 @@ class OrdenController extends Controller
             'notacliente' => strtoupper($request->notacliente),
             'observaciones' => strtoupper($request->observaciones),
             'valor' => $request->valor,
-            'estado' => $request->estado,
         ]);
 
         return response()->json(['success' => 'Orden actualizada correctamente.']);
     }
-
-    //finalizar orden
-    public function finalizar(Request $request, $codigo)
+    public function updatefinalizadas(Request $request, $codigo)
     {
         $request->validate([
             'nomcliente' => 'required|string|max:255',
@@ -192,47 +278,6 @@ class OrdenController extends Controller
             'equipo' => 'required|string|max:255',
             'marca' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
-            'serial' => 'required|string|max:255',
-            'cargador' => 'required|string|max:255',
-            'bateria' => 'required|string|max:255',
-            'otros' => 'required|string|max:255',
-            'notacliente' => 'required|string',
-            'observaciones' => 'nullable|string',
-            'valor' => 'required|numeric',
-            'notatecnico' => 'required|string',
-        ]);
-
-        // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
-        $orden = Orden::where('codigo', $codigo)->firstOrFail();
-
-        // Actualizar la orden con los nuevos datos
-        $orden->update([
-            'nomcliente' => strtoupper($request->nomcliente),
-            'celcliente' => strtoupper($request->celcliente),
-            'equipo' => strtoupper($request->equipo),
-            'marca' => strtoupper($request->marca),
-            'modelo' => strtoupper($request->modelo),
-            'serial' => strtoupper($request->serial),
-            'cargador' => strtoupper($request->cargador),
-            'bateria' => strtoupper($request->bateria),
-            'otros' => strtoupper($request->otros),
-            'notacliente' => strtoupper($request->notacliente),
-            'observaciones' => strtoupper($request->observaciones),
-            'valor' => $request->valor,
-            'estado' => 'ENTREGADO',
-        ]);
-
-        return response()->json(['success' => 'Orden actualizada correctamente.']);
-    }
-
-    public function updatefinalizadas(Request $request, $codigo)
-    {
-        $request->validate([
-            'nomclienteFin' => 'required|string|max:255',
-            'celcliente' => 'required|numeric',
-            'equipoFin' => 'required|string|max:255',
-            'marcaFin' => 'required|string|max:255',
-            'modeloFin' => 'required|string|max:255',
             'serial' => 'required|string|max:255',
             'cargador' => 'required|string|max:255',
             'bateria' => 'required|string|max:255',
@@ -255,11 +300,11 @@ class OrdenController extends Controller
 
         // Actualizar la orden con los nuevos datos
         $orden->update([
-            'nomcliente' => strtoupper($request->nomclienteFin),
+            'nomcliente' => strtoupper($request->nomcliente),
             'celcliente' => strtoupper($request->celcliente),
-            'equipo' => strtoupper($request->equipoFin),
-            'marca' => strtoupper($request->marcaFin),
-            'modelo' => strtoupper($request->modeloFin),
+            'equipo' => strtoupper($request->equipo),
+            'marca' => strtoupper($request->marca),
+            'modelo' => strtoupper($request->modelo),
             'serial' => strtoupper($request->serial),
             'cargador' => strtoupper($request->cargador),
             'bateria' => strtoupper($request->bateria),
@@ -271,7 +316,7 @@ class OrdenController extends Controller
             'fechafin' => $fechaFormateada,
         ]);
 
-        return redirect()->route('ordenes.finalizadas')->with('success', 'Orden actualizada correctamente.');
+        return response()->json(['success' => 'Orden actualizada correctamente.']);
     }
 
     public function destroy($codigo)
@@ -287,14 +332,6 @@ class OrdenController extends Controller
     }
 
 
-    //obtener el ultimo id, para la factura
-    public function getLatestOrderId()
-    {
-        $ultimaOrden = Orden::orderBy('codigo', 'desc')->first();
-        $nuevoCodigo = $ultimaOrden ? $ultimaOrden->codigo + 1 : 1; // Si no hay ninguna orden, empezar en 1
-
-        return response()->json(['nuevoCodigo' => $nuevoCodigo]);
-    }
 
     public function edit($id)
     {
@@ -305,7 +342,7 @@ class OrdenController extends Controller
         return response()->json($orden);
     }
     // ajax para obtener datos para finalizar orden
-    public function finalizarOrden($id)
+    public function Orden($id)
     {
         // Busca la orden por su código
         $orden = Orden::where('codigo', $id)->firstOrFail();
