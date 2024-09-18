@@ -38,12 +38,17 @@ class OrdenController extends Controller
 
 
 
-    public function pendientes()
+    public function pendientes(Request $request)
     {
-        // Obtener las órdenes con estado "PENDIENTE"
-        $OrdenPen = Orden::where('estado', 'PENDIENTE')
-            ->orderBy('codigo', 'desc')
-            ->get();
+
+        if ($request->ajax()) {
+            $ordenes = Orden::where('estado', 'PENDIENTE')
+                ->orderBy('codigo', 'desc')
+                ->select(['codigo', 'nomcliente', 'marca', 'fecha', 'celcliente', 'tecnico', 'valor', 'modelo', 'notacliente', 'observaciones', 'reparado']);
+
+            return DataTables::of($ordenes)
+                ->make(true);
+        }
 
         // Obtener el último código de la orden
         $ultimaOrden = Orden::orderBy('codigo', 'desc')->first();
@@ -52,7 +57,6 @@ class OrdenController extends Controller
 
 
         return view('ordenes/pendientes/index', [
-            'OrdenPen' => $OrdenPen,
             'nuevoCodigo' => $nuevoCodigo,
         ]);
     }
@@ -99,6 +103,7 @@ class OrdenController extends Controller
             'bateria' => 'required',
             'otros' => 'required',
             'notacliente' => 'required|string',
+            'valor' => 'required|numeric',
 
         ]);
 
@@ -223,11 +228,11 @@ class OrdenController extends Controller
     public function updatefinalizadas(Request $request, $codigo)
     {
         $request->validate([
-            'nomcliente' => 'required|string|max:255',
+            'nomclienteFin' => 'required|string|max:255',
             'celcliente' => 'required|numeric',
-            'equipo' => 'required|string|max:255',
-            'marca' => 'required|string|max:255',
-            'modelo' => 'required|string|max:255',
+            'equipoFin' => 'required|string|max:255',
+            'marcaFin' => 'required|string|max:255',
+            'modeloFin' => 'required|string|max:255',
             'serial' => 'required|string|max:255',
             'cargador' => 'required|string|max:255',
             'bateria' => 'required|string|max:255',
@@ -250,11 +255,11 @@ class OrdenController extends Controller
 
         // Actualizar la orden con los nuevos datos
         $orden->update([
-            'nomcliente' => strtoupper($request->nomcliente),
+            'nomcliente' => strtoupper($request->nomclienteFin),
             'celcliente' => strtoupper($request->celcliente),
-            'equipo' => strtoupper($request->equipo),
-            'marca' => strtoupper($request->marca),
-            'modelo' => strtoupper($request->modelo),
+            'equipo' => strtoupper($request->equipoFin),
+            'marca' => strtoupper($request->marcaFin),
+            'modelo' => strtoupper($request->modeloFin),
             'serial' => strtoupper($request->serial),
             'cargador' => strtoupper($request->cargador),
             'bateria' => strtoupper($request->bateria),
@@ -299,6 +304,16 @@ class OrdenController extends Controller
         // Retorna los datos de la orden en formato JSON para usarlos en el modal
         return response()->json($orden);
     }
+    // ajax para obtener datos para finalizar orden
+    public function finalizarOrden($id)
+    {
+        // Busca la orden por su código
+        $orden = Orden::where('codigo', $id)->firstOrFail();
+
+        // Retorna los datos de la orden en formato JSON para usarlos en el modal
+        return response()->json($orden);
+    }
+
 
     public function buscar(Request $request)
     {
@@ -365,9 +380,6 @@ class OrdenController extends Controller
                 break;
             case 'modelo':
                 $resultados = Orden::where('modelo', 'like', '%' . $search . '%')->distinct()->pluck('modelo');
-                break;
-            case 'celcliente':
-                $resultados = Orden::where('celcliente', 'like', '%' . $search . '%')->distinct()->pluck('celcliente');
                 break;
             default:
                 return response()->json(['error' => 'Tipo no válido'], 400);

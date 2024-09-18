@@ -60,16 +60,19 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <x-adminlte-select2 id="celcliente" name="celcliente" label="Celular cliente"
-                                    igroup-size="sm" required multiple>
-                                    <x-slot name="prependSlot">
-                                        <div class="input-group-text bg-gradient-red">
-                                            <i class="fas fa-users"></i>
+                                <label for="celcliente">Celular cliente</label>
+                                <div class="input-group mb-2 mr-sm-2">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-danger">
+                                            <i class="fas fa-phone"></i>
                                         </div>
-                                    </x-slot>
-                                </x-adminlte-select2>
+                                    </div>
+                                    <input type="number" class="form-control" id="celcliente" name="celcliente"
+                                        placeholder="" required>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="col-md-4">
@@ -175,8 +178,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <x-adminlte-textarea name="notacliente" label="Nota del Cliente" rows=4 igroup-size="sm"
-                                    placeholder="Escriba una descripción..." required>
+                                <x-adminlte-textarea name="notacliente" label="Nota del Cliente" rows=4
+                                    igroup-size="sm" placeholder="Escriba una descripción..." required>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
                                             <i class="fas fa-lg fa-file-alt"></i>
@@ -187,8 +190,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <x-adminlte-textarea name="observaciones" label="Observaciones" rows=4 igroup-size="sm"
-                                    placeholder="Escriba una observación...">
+                                <x-adminlte-textarea name="observaciones" label="Observaciones" rows=4
+                                    igroup-size="sm" placeholder="Escriba una observación..." required>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
                                             <i class="fas fa-lg fa-file-alt"></i>
@@ -207,8 +210,8 @@
                                     <i class="fas fa-dollar-sign"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="valor" name="valor"
-                                placeholder="">
+                            <input type="number" class="form-control" id="valor" name="valor" placeholder=""
+                                required>
                         </div>
                     </div>
                 </div>

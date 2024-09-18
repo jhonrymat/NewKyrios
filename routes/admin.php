@@ -180,4 +180,5 @@ Route::get('/orden/bodega', [OrdenController::class, 'bodega'])->name('ordenes.b
 
 Route::get('/buscar-datos', [OrdenController::class, 'buscarDatos'])->name('buscar.datos');
 
-
+// ajax para obtener datos para finalizar orden
+Route::get('/orden/{codigo}/finalizar', [OrdenController::class, 'finalizarOrden'])->name('ordenes.finalizar.ajax');

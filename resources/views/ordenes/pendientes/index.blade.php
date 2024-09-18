@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('plugins.Select2', true)
+@section('plugins.Select2', true, 'plugins.Sweetalert2', true)
 
 @section('title', 'Ordenes pendientes')
 
@@ -24,9 +24,10 @@
                     <div class="d-flex justify-content-end">
                         <button data-toggle="modal" data-target="#createOrderModal" class="btn btn-primary btn-sm mb-2"
                             title="Crear" id="btnCreateOrder">
-                            <i class="fa fa-plus-circle"></i> Agregar orden
+                            <i class="fa fa-plus-circle"></i> <span>Agregar orden</span>
                         </button>
                     </div>
+
                 </div>
                 <div class="card-body">
                     <table id="ordenes-table" class="dt-container dt-empty-footer">
@@ -39,16 +40,15 @@
                                 <th>Celular</th>
                                 <th>Tecnico</th>
                                 <th>valor</th>
-                                <th>Listo</th>
-                                <th>Configuraciones</th>
                                 <th class="none">Modelo</th>
                                 <th class="none">Nota Cliente</th>
                                 <th class="none">Observaciones</th>
+                                <th>Listo</th>
+                                <th>Configuraciones</th>
                             </tr>
                         </thead>
                         <tbody style="text-align: center">
-                            @foreach ($OrdenPen as $orden)
-                                <tr>
+                            {{-- <tr>
                                     <td>{{ $orden->codigo }}</td>
                                     <td>{{ $orden->nomcliente }}</td>
                                     <td>{{ $orden->marca }}</td>
@@ -57,8 +57,6 @@
                                     <td>{{ $orden->tecnico }}</td>
                                     <td>{{ $orden->valor }}</td>
                                     <td>
-                                        {{-- <input type="checkbox" class="toggle-reparado" data-codigo="{{ $orden->codigo }}"
-                                            {{ $orden->reparado == 'reparado' ? 'checked' : '' }}> --}}
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input toggleReparado"
                                                 id="switchReparado{{ $orden->codigo }}" data-codigo="{{ $orden->codigo }}"
@@ -91,14 +89,13 @@
                                     <td>{{ $orden->modelo }}</td>
                                     <td>{{ $orden->notacliente }}</td>
                                     <td>{{ $orden->observaciones }}</td>
-                                </tr>
-                                {{-- modal finalizar --}}
-                                @include('ordenes.pendientes.finalizar-modal')
-                                {{-- modal edit --}}
-                                @include('ordenes.pendientes.edit-modal')
-                                <!-- Modal de Confirmación de Eliminación -->
-                                @include('ordenes.pendientes.delete-modal')
-                            @endforeach
+                                </tr> --}}
+                            {{-- modal finalizar --}}
+                            @include('ordenes.pendientes.finalizar-modal')
+                            {{-- modal edit --}}
+                            {{-- @include('ordenes.pendientes.edit-modal') --}}
+                            <!-- Modal de Confirmación de Eliminación -->
+                            {{-- @include('ordenes.pendientes.delete-modal') --}}
                             {{-- modal create --}}
                             @include('ordenes.pendientes.create-modal')
                         </tbody>
@@ -127,6 +124,19 @@
             width: 100% !important;
             height: auto !important;
         }
+
+        /* Mostrar solo el ícono en pantallas pequeñas (móviles) */
+        @media (max-width: 768px) {
+            #btnCreateOrder span {
+                display: none;
+                /* Ocultar el texto */
+            }
+
+            #btnCreateOrder i {
+                font-size: 1.5rem;
+                /* Ajustar el tamaño del icono si es necesario */
+            }
+        }
     </style>
 @stop
 
@@ -139,8 +149,93 @@
     <script>
         $(document).ready(function() {
             $('#ordenes-table').DataTable({
-                "language": {
-                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('ordenes.pendientes') }}", // Ruta que apuntará a tu método finalizadas
+                columns: [{
+                        data: 'codigo',
+                        name: 'codigo'
+                    },
+                    {
+                        data: 'nomcliente',
+                        name: 'nomcliente'
+                    },
+                    {
+                        data: 'marca',
+                        name: 'marca'
+                    },
+                    {
+                        data: 'fecha',
+                        name: 'fecha'
+                    },
+
+                    {
+                        data: 'celcliente',
+                        name: 'celcliente'
+                    },
+                    {
+                        data: 'tecnico',
+                        name: 'tecnico'
+                    },
+                    {
+                        data: 'valor',
+                        name: 'valor'
+                    },
+
+                    {
+                        data: 'modelo',
+                        name: 'modelo'
+                    },
+                    {
+                        data: 'notacliente',
+                        name: 'notacliente'
+                    },
+                    {
+                        data: 'observaciones',
+                        name: 'observaciones'
+                    },
+                    {
+                        data: 'codigo',
+                        name: 'codigo',
+                        render: function(data, type, row) {
+                            return `
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input toggleReparado"
+                                        id="switchReparado${data}" data-codigo="${data}"
+                                        ${row.reparado == 'reparado' ? 'checked' : ''}>
+                                    <label class="custom-control-label"
+                                        for="switchReparado${data}"></label>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: 'codigo',
+                        name: 'codigo',
+                        render: function(data, type, row) {
+                            return `
+                                <a href="/admin/orden/${data}/pendientes" target="_blank" class="btn btn-warning btn-sm mb-2">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <button class="btn btn-success btn-sm mb-2 finalizarOrden" data-id="${data}">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm mb-2 deleteApp"
+                                    data-appid="${data}" data-toggle="modal"
+                                    data-target="#deleteConfirmationModal">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+                                <a data-toggle="modal" data-target="#modal-edit-${data}"
+                                    class="btn btn-primary btn-sm mb-2" title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            `;
+                        }
+                    }
+                ],
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 },
                 responsive: true,
                 columnDefs: [{
@@ -165,8 +260,12 @@
                 url: "{{ route('ordenes.update', '') }}/" + appId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
-                    alert("Orden actualizada con éxito");
-                    location.reload(); // Opcional: recargar la página o actualizar la vista
+                    Swal.fire(
+                        'Actualizada',
+                        'La orden ha sido Actualizada correctamente.',
+                        'success'
+                    );
+
                 },
                 error: function(error) {
                     console.log(error);
@@ -177,18 +276,62 @@
     </script>
     {{-- Finalizar --}}
     <script>
-        $('form[id^="finalizarForm-"]').on('submit', function(e) {
+        $(document).on('click', '.finalizarOrden', function() {
+            var ordenId = $(this).data('id'); // Obtiene el id de la orden
+
+            $.ajax({
+                url: `/admin/orden/${ordenId}/finalizar`, // Ajusta según tu ruta
+                type: 'GET',
+                success: function(data) {
+                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
+                    var fechafinOriginal = data.fechafin;
+                    if (fechafinOriginal != null) {
+                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
+                            '-'); // Convertir a 'DD/MM/YYYY'
+                    }
+                    // Completar los campos del formulario con los datos recibidos
+                    $('#ordenCodigo').text(data.codigo);
+                    $('#tecnico').val(data.tecnico);
+                    $('#fecha').val(data.fecha);
+                    $('#horainicio').val(data.horainicio);
+                    $('#nomclienteFin').val(data.nomcliente);
+                    $('#celcliente').val(data.celcliente);
+                    $('#equipoFin').val(data.equipo);
+                    $('#marcaFin').val(data.marca);
+                    $('#modeloFin').val(data.modelo);
+                    $('#serial').val(data.serial);
+                    $('#cargador').val(data.cargador);
+                    $('#bateria').val(data.bateria);
+                    $('#otros').val(data.otros);
+                    $('#notacliente').val(data.notacliente);
+                    $('#observaciones').val(data.observaciones);
+                    $('#notatecnico').val(data.notatecnico);
+                    $('#valor').val(data.valor);
+                    $('#fechafin').val(fechaFormateada);
+
+                    // Establecer la acción del formulario
+                    $('#finalizarForm').attr('action', `/admin/orden/finalizadas/${ordenId}`);
+                    $('#finalizarOrderModal').modal('show'); // Mostrar el modal
+                }
+            });
+        });
+
+        $('form#finalizarForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
             var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
             var formData = $(this).serialize(); // Serializar los datos del formulario
 
             $.ajax({
-                type: "POST",
-                url: "{{ route('ordenes.finalizar', '') }}/" + appId, // Generar correctamente la URL
+                type: "PUT",
+                url :"/admin/orden/finalizar/" +
+                    appId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
-                    alert("Orden finalizada con éxito");
-                    location.reload(); // Opcional: recargar la página o actualizar la vista
+                    if (response.success) {
+                        alert("Orden finalizada correctamente");
+                        $('#modal-finalizar').modal('hide'); // Cerrar modal
+                        $('#ordenes-table').DataTable().ajax.reload();
+                    }
                 },
                 error: function(error) {
                     console.log(error);
@@ -196,6 +339,25 @@
                 }
             });
         });
+        // $('form[id^="finalizarForm-"]').on('submit', function(e) {
+        //     e.preventDefault(); // Evitar la recarga de la página
+        //     var appId = this.id.split('-')[1]; // Obtener el ID de la aplicación
+        //     var formData = $(this).serialize(); // Serializar los datos del formulario
+
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('ordenes.finalizar', '') }}/" + appId, // Generar correctamente la URL
+        //         data: formData,
+        //         success: function(response) {
+        //             alert("Orden finalizada con éxito");
+        //             location.reload(); // Opcional: recargar la página o actualizar la vista
+        //         },
+        //         error: function(error) {
+        //             console.log(error);
+        //             alert("Error al finalizar la orden");
+        //         }
+        //     });
+        // });
     </script>
     <script>
         $(document).ready(function() {
@@ -243,8 +405,24 @@
                     url: "{{ route('ordenes.store') }}", // Asegúrate de que esta es la ruta correcta
                     data: formData,
                     success: function(response) {
-                        alert("Orden creada con éxito"); // Mensaje de éxito
-                        location.reload(); // Recargar la página o actualizar los datos
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Orden creada con éxito',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        $('#createOrderModal').modal('hide'); // Cerrar modal
+                        $('#ordenes-table').DataTable().ajax.reload();
+                        document.getElementById('createOrderForm').reset();
+                        // Restablecer Select2 también
+                        $('#nomcliente').val(null).trigger(
+                            'change'); // Restablecer Select2 para el cliente
+                        $('#equipo').val(null).trigger(
+                            'change');
+                        $('#marca').val(null).trigger(
+                            'change');
+                        $('#modelo').val(null).trigger(
+                            'change');
                     },
                     error: function(xhr) {
                         // Limpiar cualquier error anterior
@@ -308,6 +486,7 @@
                             timer: 1500
                         });
                     }
+                    $('#ordenes-table').DataTable().ajax.reload();
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) { // Unprocessable Entity (validación fallida)
@@ -332,7 +511,7 @@
             });
         });
     </script>
-    <script>
+    {{-- <script>
         document.getElementById('start-scan').addEventListener('click', function() {
             // Mostrar el contenedor de la cámara solo cuando comience el escaneo
             document.getElementById('scanner-container').style.display = 'block';
@@ -379,7 +558,7 @@
             document.getElementById('scanner-container').innerHTML = ''; // Limpiar el contenedor del video
             this.style.display = 'none';
         });
-    </script>
+    </script> --}}
     {{-- optimizando select2 --}}
     <script>
         $(document).ready(function() {
@@ -415,7 +594,6 @@
 
             // Inicializar Select2 para diferentes campos
             inicializarSelect2('#nomcliente', 'cliente');
-            inicializarSelect2('#celcliente', 'celcliente');
             inicializarSelect2('#equipo', 'equipo');
             inicializarSelect2('#marca', 'marca');
             inicializarSelect2('#modelo', 'modelo');

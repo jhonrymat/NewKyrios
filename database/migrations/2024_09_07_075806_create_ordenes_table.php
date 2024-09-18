@@ -16,11 +16,11 @@ return new class extends Migration {
             $table->id('codigo'); // Equivalente a 'AUTO_INCREMENT'
             $table->string('fecha', 10); // VARCHAR(10)
             $table->string('tecnico', 60); // VARCHAR(60)
-            $table->string('nomcliente', 60); // VARCHAR(60)
-            $table->string('celcliente', 20)->nullable(); // VARCHAR(20) con valor NULL permitido
-            $table->string('equipo', 60); // VARCHAR(60)
-            $table->string('marca', 30); // VARCHAR(30)
-            $table->string('modelo', 30); // VARCHAR(30)
+            $table->string('nomcliente', 60)->index(); // VARCHAR(60)
+            $table->string('celcliente', 20)->nullable()->index(); // VARCHAR(20) con valor NULL permitido
+            $table->string('equipo', 60)->index(); // VARCHAR(60)
+            $table->string('marca', 30)->index(); // VARCHAR(30)
+            $table->string('modelo', 30)->index(); // VARCHAR(30)
             $table->string('serial', 30); // VARCHAR(30)
             $table->text('cargador')->nullable(); // TEXT, con valor NULL permitido
             $table->text('bateria')->nullable(); // TEXT, con valor NULL permitido
