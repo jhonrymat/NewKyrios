@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 // use Illuminate\Support\Facades\Redis;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\OrdenController;
@@ -12,14 +13,20 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ClocalController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NumerosController;
-use App\Http\Controllers\PermisoController;
 
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ErrorLogController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\AplicacionesController;
 use App\Http\Controllers\EstadisticasController;
+use App\Http\Controllers\ProductMasukController;
 use App\Http\Controllers\ProgramadosControllers;
+use App\Http\Controllers\ProductKeluarController;
 
 Route::resource(
     'aplicaciones',
@@ -119,7 +126,7 @@ Route::get('download/{id}', function ($id) {
 Route::get('data', function () {
     try {
         $results = DB::select('CALL GetMessagesReport(?, ?)', ['2024-03-29', '2024-04-15']);
-        if (!empty ($results)) {
+        if (!empty($results)) {
             // foreach ($results as $result) {
             //     echo "Nombre: " . $result->contacto_nombre . ", Teléfono: " . $result->contacto_telefono . ", Estado: " . $result->estado . ", enviado: " . $result->distintivo_nombre . ", fecha: " . $result->created_at . "\n";
             // }
@@ -155,30 +162,176 @@ Route::get('refresh-csrf', function () {
 
 Route::get('descargar-plantilla', [ContactoController::class, 'descargarPlantilla'])->name('descargar-plantilla');
 
-// ordenes
-Route::get('/orden/{codigo}/pendientes', [OrdenController::class, 'generarPDFpendientes'])->name('ordenes.pdf.pendientes');
-Route::get('/orden/{codigo}/finalizados', [OrdenController::class, 'generarPDFfinalizados'])->name('ordenes.pdf.finalizados');
-Route::get('/orden/pendiente', [OrdenController::class, 'pendientes'])->name('ordenes.pendientes');
-Route::get('/orden/finalizadas', [OrdenController::class, 'finalizadas'])->name('ordenes.finalizadas');
-Route::post('/orden/store', [OrdenController::class, 'store'])->name('ordenes.store');
-Route::put('orden/{codigo}', [OrdenController::class, 'update'])->middleware('can:ordenes.update')->name('ordenes.update');
-Route::delete('orden/{codigo}', [OrdenController::class, 'destroy'])->middleware('can:ordenes.destroy')->name('ordenes.destroy');
-Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->name('ordenes.edit');
+// Ordenes
+Route::get('/orden/{codigo}/pendientes', [OrdenController::class, 'generarPDFpendientes'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.pdf.pendientes');
 
-Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->name('ordenes.update.finalizadas');
-// Finalizar orden pendiente
-Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->name('ordenes.finalizar');
+Route::get('/orden/{codigo}/finalizados', [OrdenController::class, 'generarPDFfinalizados'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.pdf.finalizados');
 
-// Actualizar columna reparado
-Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->name('ordenes.update.reparado');
+Route::get('/orden/pendiente', [OrdenController::class, 'pendientes'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.pendientes');
 
-//bodega
-Route::get('/orden/bodega', [OrdenController::class, 'bodega'])->name('ordenes.bodega');
-//Actualizar datos de la bodega
-Route::put('orden/edit/bodega/{codigo}', [OrdenController::class, 'updateBodega'])->name('ordenes.update.bodega');
-// Ruta para obtener datos vía AJAX
+Route::get('/orden/finalizadas', [OrdenController::class, 'finalizadas'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.finalizadas');
 
-Route::get('/buscar-datos', [OrdenController::class, 'buscarDatos'])->name('buscar.datos');
+Route::post('/orden/store', [OrdenController::class, 'store'])
+    ->middleware('can:ordenes.create')
+    ->name('ordenes.store');
 
-// ajax para obtener datos para finalizar orden
-Route::get('/orden/{codigo}/ajax', [OrdenController::class, 'Orden'])->name('ordenes.ajax');
+Route::put('orden/{codigo}', [OrdenController::class, 'update'])
+    ->middleware('can:ordenes.update')
+    ->name('ordenes.update');
+
+Route::delete('orden/{codigo}', [OrdenController::class, 'destroy'])
+    ->middleware('can:ordenes.destroy')
+    ->name('ordenes.destroy');
+
+Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])
+    ->middleware('can:ordenes.edit')
+    ->name('ordenes.edit');
+
+Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])
+    ->middleware('can:ordenes.update')
+    ->name('ordenes.update.finalizadas');
+
+Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])
+    ->middleware('can:ordenes.finalizar')
+    ->name('ordenes.finalizar');
+
+Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])
+    ->middleware('can:ordenes.update')
+    ->name('ordenes.update.reparado');
+
+// Bodega
+Route::get('/orden/bodega', [OrdenController::class, 'bodega'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.bodega');
+
+Route::put('orden/edit/bodega/{codigo}', [OrdenController::class, 'updateBodega'])
+    ->middleware('can:ordenes.update')
+    ->name('ordenes.update.bodega');
+
+// AJAX para obtener datos
+Route::get('/buscar-datos', [OrdenController::class, 'buscarDatos'])
+    ->middleware('can:ordenes.view')
+    ->name('buscar.datos');
+
+Route::get('/orden/{codigo}/ajax', [OrdenController::class, 'Orden'])
+    ->middleware('can:ordenes.view')
+    ->name('ordenes.ajax');
+
+// Inventory
+// Categorías
+Route::resource('categories', CategoryController::class)->middleware('can:categories.manage');
+Route::get('/apiCategories', [CategoryController::class, 'apiCategories'])
+    ->middleware('can:categories.view')
+    ->name('api.categories');
+
+Route::get('/exportCategoriesAll', [CategoryController::class, 'exportCategoriesAll'])
+    ->middleware('can:categories.export')
+    ->name('exportPDF.categoriesAll');
+
+Route::get('/exportCategoriesAllExcel', [CategoryController::class, 'exportExcel'])
+    ->middleware('can:categories.export')
+    ->name('exportExcel.categoriesAll');
+
+// Clientes
+Route::resource('customers', CustomerController::class)->middleware('can:customers.manage');
+Route::get('/apiCustomers', [CustomerController::class, 'apiCustomers'])
+    ->middleware('can:customers.view')
+    ->name('api.customers');
+
+Route::post('/importCustomers', [CustomerController::class, 'ImportExcel'])
+    ->middleware('can:customers.import')
+    ->name('import.customers');
+
+Route::get('/exportCustomersAll', [CustomerController::class, 'exportCustomersAll'])
+    ->middleware('can:customers.export')
+    ->name('exportPDF.customersAll');
+
+Route::get('/exportCustomersAllExcel', [CustomerController::class, 'exportExcel'])
+    ->middleware('can:customers.export')
+    ->name('exportExcel.customersAll');
+
+// Ventas
+Route::resource('sales', SaleController::class)->middleware('can:sales.manage');
+Route::get('/apiSales', [SaleController::class, 'apiSales'])
+    ->middleware('can:sales.view')
+    ->name('api.sales');
+
+Route::post('/importSales', [SaleController::class, 'ImportExcel'])
+    ->middleware('can:sales.import')
+    ->name('import.sales');
+
+Route::get('/exportSalesAll', [SaleController::class, 'exportSalesAll'])
+    ->middleware('can:sales.export')
+    ->name('exportPDF.salesAll');
+
+Route::get('/exportSalesAllExcel', [SaleController::class, 'exportExcel'])
+    ->middleware('can:sales.export')
+    ->name('exportExcel.salesAll');
+
+// Proveedores
+Route::resource('suppliers', SupplierController::class)->middleware('can:suppliers.manage');
+Route::get('/apiSuppliers', [SupplierController::class, 'apiSuppliers'])
+    ->middleware('can:suppliers.view')
+    ->name('api.suppliers');
+
+Route::post('/importSuppliers', [SupplierController::class, 'ImportExcel'])
+    ->middleware('can:suppliers.import')
+    ->name('import.suppliers');
+
+Route::get('/exportSupplierssAll', [SupplierController::class, 'exportSuppliersAll'])
+    ->middleware('can:suppliers.export')
+    ->name('exportPDF.suppliersAll');
+
+Route::get('/exportSuppliersAllExcel', [SupplierController::class, 'exportExcel'])
+    ->middleware('can:suppliers.export')
+    ->name('exportExcel.suppliersAll');
+
+// Productos
+Route::resource('products', ProductController::class)->middleware('can:products.manage');
+Route::get('/apiProducts', [ProductController::class, 'apiProducts'])
+    ->middleware('can:products.view')
+    ->name('api.products');
+
+// Productos salientes
+Route::resource('productsOut', ProductKeluarController::class)->middleware('can:productsOut.manage');
+Route::get('/apiProductsOut', [ProductKeluarController::class, 'apiProductsOut'])
+    ->middleware('can:productsOut.view')
+    ->name('api.productsOut');
+
+Route::get('/exportProductKeluarAll', [ProductKeluarController::class, 'exportProductKeluarAll'])
+    ->middleware('can:productsOut.export')
+    ->name('exportPDF.productKeluarAll');
+
+Route::get('/exportProductKeluarAllExcel', [ProductKeluarController::class, 'exportExcel'])
+    ->middleware('can:productsOut.export')
+    ->name('exportExcel.productKeluarAll');
+
+Route::get('/exportProductKeluar/{id}', [ProductKeluarController::class, 'exportProductKeluar'])
+    ->middleware('can:productsOut.export')
+    ->name('exportPDF.productKeluar');
+
+// Productos entrantes
+Route::resource('productsIn', ProductMasukController::class)->middleware('can:productsIn.manage');
+Route::get('/apiProductsIn', [ProductMasukController::class, 'apiProductsIn'])
+    ->middleware('can:productsIn.view')
+    ->name('api.productsIn');
+
+Route::get('/exportProductMasukAll', [ProductMasukController::class, 'exportProductMasukAll'])
+    ->middleware('can:productsIn.export')
+    ->name('exportPDF.productMasukAll');
+
+Route::get('/exportProductMasukAllExcel', [ProductMasukController::class, 'exportExcel'])
+    ->middleware('can:productsIn.export')
+    ->name('exportExcel.productMasukAll');
+
+Route::get('/exportProductMasuk/{id}', [ProductMasukController::class, 'exportProductMasuk'])
+    ->middleware('can:productsIn.export')
+    ->name('exportPDF.productMasuk');

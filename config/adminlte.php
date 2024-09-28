@@ -333,6 +333,48 @@ return [
             ],
         ],
         [
+            'text' => 'Almacen',
+            'icon' => 'fas fa-fw fa-file-invoice',
+            'submenu' => [
+                [
+                    'text' => 'Categorias',
+                    'icon' => 'fa fa-list',
+                    'route' => 'categories.index',
+                ],
+                [
+                    'text' => 'Productos',
+                    'icon' => 'fa fa-cubes',
+                    'route' => 'products.index',
+                ],
+                [
+                    'text' => 'Clientes',
+                    'icon' => 'fa fa-users',
+                    'route' => 'customers.index',
+                ],
+                // Opción comentada en el código original
+                // [
+                //     'text' => 'Sales',
+                //     'icon' => 'fa fa-cart-plus',
+                //     'route' => 'sales.index',
+                // ],
+                [
+                    'text' => 'Proveedores',
+                    'icon' => 'fa fa-truck',
+                    'route' => 'suppliers.index',
+                ],
+                [
+                    'text' => 'Productos salientes',
+                    'icon' => 'fa fa-minus',
+                    'route' => 'productsOut.index',
+                ],
+                [
+                    'text' => 'Comprar productos',
+                    'icon' => 'fa fa-cart-plus',
+                    'route' => 'productsIn.index',
+                ],
+            ],
+        ],
+        [
             'text' => 'Administración',
             'icon' => 'fas fa-fw fa-cogs',
             'submenu' => [
