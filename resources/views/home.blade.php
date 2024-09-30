@@ -70,19 +70,6 @@
                 </div>
 
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Aquí va algo...!!</h3>
-                        </div>
-                        <div class="card-body">
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
     </section>
 
     <div class="row">
@@ -93,12 +80,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\User::count() }}</h3>
 
-                    <p>System Users</p>
+                    <p>Usuarios</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-user-secret"></i>
                 </div>
-                <a href="/user" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="/admin/users" class="small-box-footer">Más información <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -108,12 +95,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\Category::count() }}<sup style="font-size: 20px"></sup></h3>
 
-                    <p>Category</p>
+                    <p>Categorias</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-list"></i>
                 </div>
-                <a href="{{ route('categories.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('categories.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -123,12 +110,12 @@
             <div class="small-box bg-yellow">
                 <div class="inner">
                     <h3>{{ \App\Models\Product::count() }}</h3>
-                    <p>Product</p>
+                    <p>Productos</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-cubes"></i>
                 </div>
-                <a href="{{ route('products.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('products.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -139,12 +126,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\Customer::count() }}</h3>
 
-                    <p>Customer</p>
+                    <p>Clientes</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-users"></i>
                 </div>
-                <a href="{{ route('customers.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('customers.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -162,12 +149,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\Supplier::count() }}<sup style="font-size: 20px"></sup></h3>
 
-                    <p>Supplier</p>
+                    <p>Proveedores</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-signal"></i>
                 </div>
-                <a href="{{ route('suppliers.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('suppliers.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -178,12 +165,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\Product_Masuk::count() }}</h3>
 
-                    <p>Total Purchase</p>
+                    <p>Compra Total</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-cart-plus"></i>
                 </div>
-                <a href="{{ route('productsIn.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('productsIn.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -194,12 +181,12 @@
                 <div class="inner">
                     <h3>{{ \App\Models\Product_Keluar::count() }}</h3>
 
-                    <p>Total Outgoing</p>
+                    <p>Total Salidas</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-minus"></i>
                 </div>
-                <a href="{{ route('productsOut.index') }}" class="small-box-footer">More info <i
+                <a href="{{ route('productsOut.index') }}" class="small-box-footer">Más información <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
