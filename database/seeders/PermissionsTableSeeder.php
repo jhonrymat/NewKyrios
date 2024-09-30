@@ -2,80 +2,78 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class PermissionsTableSeeder extends Seeder
 {
     public function run()
     {
-        // Crear permisos
+        // Definir todos los permisos
         $permissions = [
-            // Permisos para órdenes
-            // 'ordenes.view',
-            // 'ordenes.create',
-            // 'ordenes.update',
-            // 'ordenes.delete',
-            // 'ordenes.finalizar',
-            // 'ordenes.export',
-            // 'ordenes.update.bodega',
-            // 'ordenes.update.reparado',
-
-            // Permisos para categorías
-            'categories.manage',
-            'categories.view',
-            'categories.export',
-
-            // Permisos para clientes
-            'customers.manage',
-            'customers.view',
-            'customers.import',
-            'customers.export',
-
-            // Permisos para ventas
-            'sales.manage',
-            'sales.view',
-            'sales.import',
-            'sales.export',
-
-            // Permisos para proveedores
-            'suppliers.manage',
-            'suppliers.view',
-            'suppliers.import',
-            'suppliers.export',
-
-            // Permisos para productos
-            'products.manage',
-            'products.view',
-
-            // Permisos para productos entrantes y salientes
-            'productsIn.manage',
-            'productsIn.view',
-            'productsIn.export',
-
-            'productsOut.manage',
-            'productsOut.view',
-            'productsOut.export',
+            'users.index', 'users.store', 'users.update', 'users.delete',
+            'roles.index', 'roles.store', 'roles.update', 'roles.delete',
+            'permisos.index', 'permisos.store', 'permisos.update', 'permisos.delete',
+            'log-client-error','log-viewer', 'log-viewer-dashboard', 'log-viewer-logs', 'log-viewer-phpinfo', 'log-viewer-clear', 'log-viewer-download', 'log-viewer-delete', 'log-viewer-refresh',
+            'refresh-csrf',
+            'ordenes.view', 'ordenes.create', 'ordenes.update', 'ordenes.edit', 'ordenes.delete', 'ordenes.finalizar', 'ordenes.export', 'ordenes.update.bodega', 'ordenes.update.reparado',
+            'categories.manage', 'categories.view', 'categories.export',
+            'customers.manage', 'customers.view', 'customers.import', 'customers.export',
+            'sales.manage', 'sales.view', 'sales.import', 'sales.export',
+            'suppliers.manage', 'suppliers.view', 'suppliers.import', 'suppliers.export',
+            'products.manage', 'products.view',
+            'productsIn.manage', 'productsIn.view', 'productsIn.export',
+            'productsOut.manage', 'productsOut.view', 'productsOut.export',
+            'perfil.edit', 'perfil.update',
         ];
 
         // Crear permisos en la base de datos
         foreach ($permissions as $permission) {
-            Permission::create([
+            Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => 'web',
                 'description' => 'Default description for ' . $permission,  // Aquí agregas una descripción
             ]);
         }
 
-        // Crear el rol técnico y asignarle los permisos
-        $role = Role::firstOrCreate(['name' => 'tecnico']);
+        // Crear roles y asignar todos los permisos
+        $adminRole = Role::firstOrCreate([
+            'name' => 'Administrador',
+            'guard_name' => 'web',
+        ]);
+        $techRole = Role::firstOrCreate([
+            'name' => 'Técnico',
+            'guard_name' => 'web',
+        ]);
 
         // Asignar los permisos al rol técnico
-        $role->syncPermissions($permissions);
+        $adminRole->syncPermissions($permissions);
+        $techRole->syncPermissions($permissions);
 
-        // Asignar rol técnico a un usuario si es necesario
-        // $user = User::find(1); // Reemplaza 1 con el ID del usuario
-        // $user->assignRole('tecnico');
+        // Crear usuarios de ejemplo y asignarles roles
+
+        // Usuario administrador
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Administrador',
+                'password' => bcrypt('Administrador'),  // Asegúrate de usar bcrypt o hash de tu elección
+                'phone' => '3105320659',
+            ]
+        );
+        $adminUser->assignRole($adminRole);
+
+        // Usuario técnico
+        $techUser = User::firstOrCreate(
+            ['email' => 'tecnico@example.com'],
+            [
+                'name' => 'Técnico',
+                'password' => bcrypt('Tecnico'),  // Asegúrate de usar bcrypt o hash de tu elección
+                'phone' => '3118402164',
+            ]
+        );
+        $techUser->assignRole($techRole);
     }
 }

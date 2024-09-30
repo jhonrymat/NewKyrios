@@ -2,7 +2,7 @@
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form action="{{ route('ordenes.store') }}" method="POST" id="createOrderForm">
+            <form action="{{ route('ordenes.store') }}" method="POST" id="createOrderForm" enctype="multipart/form-data">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Crear Nueva Orden</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -33,8 +33,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="fecha">Fecha</label>
-                                <input type="text" name="fecha" class="form-control" value="{{ now() }}"
-                                    readonly>
+                                <input type="text" name="fecha" class="form-control" value="{{ now() }}">
                             </div>
                         </div>
                     </div>
@@ -166,7 +165,14 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="product_image">Imagen del Producto</label>
+                                <input type="file" name="product_image" class="form-control" accept="image/*" capture="camera">
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

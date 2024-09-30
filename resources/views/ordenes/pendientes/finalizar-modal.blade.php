@@ -134,7 +134,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="fechafin">Fecha Fin</label>
-                                <input type="text" name="fechafin" id="fechafin" class="form-control" readonly>
+                                <input type="text" name="fechafin" id="fechafin" class="form-control">
                             </div>
                         </div>
                     </div>

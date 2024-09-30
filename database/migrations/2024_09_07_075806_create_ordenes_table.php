@@ -34,6 +34,7 @@ return new class extends Migration {
             $table->string('fechafin', 10)->nullable(); // VARCHAR(10), con valor NULL permitido
             $table->string('horainicio', 12); // VARCHAR(12)
             $table->string('reparado', 12); // VARCHAR(12)
+            $table->string('product_image')->nullable();
 
             $table->timestamps(); // Esto añadirá las columnas 'created_at' y 'updated_at'
 

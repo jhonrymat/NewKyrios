@@ -2,7 +2,7 @@
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form id="editForm" method="POST">
+            <form id="editForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-primary text-white">
@@ -27,13 +27,13 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="fechaE">Fecha</label>
-                                <input type="text" name="fechaE" id="fechaE" class="form-control" readonly>
+                                <input type="text" name="fechaE" id="fechaE" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="horainicioE">Hora de Inicio</label>
-                                <input type="text" name="horainicioE" id="horainicioE" class="form-control" readonly>
+                                <input type="text" name="horainicioE" id="horainicioE" class="form-control">
                             </div>
                         </div>
                     </div>
@@ -41,15 +41,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="nomclienteE">Nombre del Cliente</label>
-                                <input type="text" name="nomclienteE" id="nomclienteE" class="form-control"
-                                    required >
+                                <input type="text" name="nomclienteE" id="nomclienteE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="celclienteE">Celular</label>
-                                <input type="tel" name="celclienteE" id="celclienteE" class="form-control" required
-                                    >
+                                <input type="tel" name="celclienteE" id="celclienteE" class="form-control" required>
                             </div>
                         </div>
                     </div>
@@ -57,29 +55,25 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="equipoE">Equipo</label>
-                                <input type="text" name="equipoE" id="equipoE" class="form-control" required
-                                    >
+                                <input type="text" name="equipoE" id="equipoE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="marcaE">Marca</label>
-                                <input type="text" name="marcaE" id="marcaE" class="form-control" required
-                                    >
+                                <input type="text" name="marcaE" id="marcaE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="modeloE">Modelo</label>
-                                <input type="text" name="modeloE" id="modeloE" class="form-control" required
-                                    >
+                                <input type="text" name="modeloE" id="modeloE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="serialE">Serial</label>
-                                <input type="text" name="serialE" id="serialE" class="form-control" required
-                                    >
+                                <input type="text" name="serialE" id="serialE" class="form-control" required>
                             </div>
                         </div>
                     </div>
@@ -88,22 +82,38 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="cargadorE">Cargador</label>
-                                <input type="text" name="cargadorE" id="cargadorE" class="form-control" required
-                                    >
+                                <input type="text" name="cargadorE" id="cargadorE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="bateriaE">Batería</label>
-                                <input type="text" name="bateriaE" id="bateriaE" class="form-control" required
-                                    >
+                                <input type="text" name="bateriaE" id="bateriaE" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="otrosE">Otros</label>
-                                <input type="text" name="otrosE" id="otrosE" class="form-control" required
-                                    >
+                                <input type="text" name="otrosE" id="otrosE" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-center align-items-center" id="imageContainer" style="min-height: 200px; overflow: hidden;">
+                            {{-- Imagen centrada con funcionalidad de zoom --}}
+                            <img id="imagenE" name="imagenE" alt="Imagen del producto" width="200" class="zoomable-image"
+                                 style="cursor: zoom-in; transition: transform 0.3s ease;">
+                            <span id="noImageMessage" style="display: none;"></span>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="product_image">Imagen del Producto</label>
+                                <input type="file" name="product_image" class="form-control" accept="image/*"
+                                    capture="camera">
                             </div>
                         </div>
                     </div>
@@ -111,7 +121,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="notaclienteE">Nota del Cliente</label>
-                                <textarea name="notaclienteE" id="notaclienteE" class="form-control" rows="4" ></textarea>
+                                <textarea name="notaclienteE" id="notaclienteE" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
                         <div class="col-md-6">

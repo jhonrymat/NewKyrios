@@ -24,7 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone'
+        'phone',
+        'signature',
     ];
 
     /**
@@ -45,6 +46,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function adminlte_profile_url()
+    {
+        // Devuelve la ruta hacia la página de perfil del usuario
+        return route('perfil.edit');
+    }
 
     // Relación muchos a muchos con Aplicaciones
     public function aplicaciones()

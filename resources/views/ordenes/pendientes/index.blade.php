@@ -43,53 +43,12 @@
                                 <th class="none">Modelo</th>
                                 <th class="none">Nota Cliente</th>
                                 <th class="none">Observaciones</th>
+                                <th>Foto</th>
                                 <th>Listo</th>
                                 <th>Configuraciones</th>
                             </tr>
                         </thead>
                         <tbody style="text-align: center">
-                            {{-- <tr>
-                                    <td>{{ $orden->codigo }}</td>
-                                    <td>{{ $orden->nomcliente }}</td>
-                                    <td>{{ $orden->marca }}</td>
-                                    <td>{{ $orden->fecha }}</td>
-                                    <td>{{ $orden->celcliente }}</td>
-                                    <td>{{ $orden->tecnico }}</td>
-                                    <td>{{ $orden->valor }}</td>
-                                    <td>
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input toggleReparado"
-                                                id="switchReparado{{ $orden->codigo }}" data-codigo="{{ $orden->codigo }}"
-                                                {{ $orden->reparado == 'reparado' ? 'checked' : '' }}>
-                                            <label class="custom-control-label"
-                                                for="switchReparado{{ $orden->codigo }}"></label>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('ordenes.pdf.pendientes', $orden->codigo) }}" target="_blank"
-                                            class="btn btn-warning btn-sm mb-2">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                        <a data-toggle="modal" data-target="#modal-finalizar-{{ $orden->codigo }}"
-                                            class="btn btn-success btn-sm mb-2" title="Finalizar">
-                                            <i class="fa fa-check"></i>
-                                        </a>
-
-                                        <a data-toggle="modal" data-target="#modal-edit-{{ $orden->codigo }}"
-                                            class="btn btn-primary btn-sm mb-2" title="Editar">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                        <button class="btn btn-danger btn-sm mb-2 deleteApp"
-                                            data-appid="{{ $orden->codigo }}" data-toggle="modal"
-                                            data-target="#deleteConfirmationModal">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-
-                                    </td>
-                                    <td>{{ $orden->modelo }}</td>
-                                    <td>{{ $orden->notacliente }}</td>
-                                    <td>{{ $orden->observaciones }}</td>
-                                </tr> --}}
                             {{-- modal finalizar --}}
                             @include('ordenes.pendientes.finalizar-modal')
                             {{-- modal edit --}}
@@ -98,6 +57,8 @@
                             @include('ordenes.pendientes.delete-modal')
                             {{-- modal create --}}
                             @include('ordenes.pendientes.create-modal')
+                            {{-- ver imagenes --}}
+                            @include('ordenes.modal.image')
                         </tbody>
                     </table>
                 </div>
@@ -121,6 +82,25 @@
                 font-size: 1.5rem;
                 /* Ajustar el tamaño del icono si es necesario */
             }
+        }
+
+        #imageContainer {
+            width: auto;
+            /* Ajuste automático del ancho según el contenido */
+            height: auto;
+            /* Ajuste automático del alto según el contenido */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Asegura que el contenido que se salga del contenedor se oculte */
+        }
+
+        #imagenE {
+            max-width: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
+            max-height: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
         }
     </style>
 @stop
@@ -178,6 +158,17 @@
                     {
                         data: 'observaciones',
                         name: 'observaciones'
+                    },
+                    {
+                        data: 'product_image', // Nueva columna para la imagen
+                        name: 'product_image',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `<img src="/storage/${data}" class="img-thumbnail" width="50" height="50" style="cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="/storage/${data}">`;
+                            } else {
+                                return 'No image';
+                            }
+                        }
                     },
                     {
                         data: 'codigo',
@@ -278,6 +269,14 @@
                     $('#notatecnicoE').val(data.notatecnico);
                     $('#valorE').val(data.valor);
                     $('#fechafinE').val(fechaFormateada);
+                    // Cargar la imagen si existe
+                    if (data.product_image) {
+                        $('#imagenE').attr('src', `/storage/${data.product_image}`).show();
+                        $('#noImageMessage').hide(); // Oculta el mensaje si hay imagen
+                    } else {
+                        $('#imagenE').hide();
+                        $('#noImageMessage').text('No hay imagen disponible').show(); // Mostrar mensaje
+                    }
 
                     // Establecer la acción del formulario
                     $('#editForm').attr('action', `/admin/orden/${ordenId}`);
@@ -287,13 +286,15 @@
         });
         $('#editForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
-            var formData = $(this).serialize(); // Serializar los datos del formulario
+            var formData = new FormData(this); // Serializar los datos del formulario
             var ordenId = $(this).attr('action').split('/').pop(); // Obtener el ID de la orden desde la URL
 
             $.ajax({
                 type: "POST",
                 url: "{{ route('ordenes.update', '') }}/" + ordenId, // Generar correctamente la URL
                 data: formData,
+                processData: false, // Impedir que jQuery procese los datos
+                contentType: false, // Impedir que jQuery establezca el contentType
                 success: function(response) {
                     Swal.fire(
                         'Actualizada',
@@ -374,8 +375,7 @@
 
             $.ajax({
                 type: "PUT",
-                url: "/admin/orden/finalizar/" +
-                    ordenId, // Generar correctamente la URL
+                url: "/admin/orden/finalizar/" + ordenId, // Generar correctamente la URL
                 data: formData,
                 success: function(response) {
                     if (response.success) {
@@ -384,9 +384,24 @@
                             'La orden ha sido finalizada correctamente.',
                             'success'
                         );
+
+                        // Mostrar el enlace de WhatsApp
+                        if (response.whatsapp_link) {
+                            Swal.fire({
+                                title: 'La orden ha sido finalizada correctamente.',
+                                text: 'Puedes enviar un mensaje al cliente:',
+                                html: `<a href="${response.whatsapp_link}" target="_blank" class="btn btn-success">Enviar por WhatsApp</a>`,
+                                icon: 'success',
+                                showCloseButton: true,
+                                showCancelButton: true,
+                                focusConfirm: false,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        }
+
                         $('#finalizarOrderModal').modal('hide'); // Cerrar modal
-                        $('#ordenes-table').DataTable().ajax.reload();
-                        document.getElementById('finalizarForm').reset();
+                        $('#ordenes-table').DataTable().ajax.reload(); // Recargar tabla
+                        document.getElementById('finalizarForm').reset(); // Limpiar el formulario
                     }
                 },
                 error: function(error) {
@@ -446,12 +461,14 @@
         $(document).ready(function() {
             $('#createOrderForm').submit(function(e) {
                 e.preventDefault(); // Prevenir la recarga de la página
-                var formData = $(this).serialize(); // Serializa los datos del formulario
+                var formData = new FormData(this); // Serializa los datos del formulario
 
                 $.ajax({
                     type: "POST",
                     url: "{{ route('ordenes.store') }}", // Asegúrate de que esta es la ruta correcta
                     data: formData,
+                    contentType: false, // Necesario para la subida de archivos
+                    processData: false, // Necesario para la subida de archivos
                     success: function(response) {
                         Swal.fire({
                             icon: 'success',
@@ -579,6 +596,61 @@
             inicializarSelect2('#equipo', 'equipo');
             inicializarSelect2('#marca', 'marca');
             inicializarSelect2('#modelo', 'modelo');
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Evento para abrir el modal y cargar la imagen en él
+            $('#ordenes-table').on('click', 'img[data-toggle="modal"]', function() {
+                var imageUrl = $(this).data('image');
+                $('#modalImage').attr('src', imageUrl);
+            });
+
+            // Funcionalidad de zoom en la imagen del modal
+            $('#modalImage').on('click', function() {
+                if ($(this).css('cursor') === 'zoom-in') {
+                    $(this).css({
+                        'transform': 'scale(1.5)',
+                        'cursor': 'zoom-out'
+                    });
+                } else {
+                    $(this).css({
+                        'transform': 'scale(1)',
+                        'cursor': 'zoom-in'
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Aplicar el zoom y ajustar el tamaño del contenedor dinámicamente
+            $('.zoomable-image').on('click', function() {
+                let $image = $(this);
+                let $container = $image.closest('#imageContainer'); // Obtener el contenedor
+
+                if ($image.css('cursor') === 'zoom-in') {
+                    $image.css({
+                        'transform': 'scale(2)',
+                        'cursor': 'zoom-out',
+                        'transition': 'transform 0.3s ease'
+                    });
+                    $container.css({
+                        'height': $image.outerHeight(true) * 2 + 'px',
+                        'width': $image.outerWidth(true) * 2 + 'px'
+                    });
+                } else {
+                    $image.css({
+                        'transform': 'scale(1)',
+                        'cursor': 'zoom-in',
+                        'transition': 'transform 0.3s ease'
+                    });
+                    $container.css({
+                        'height': 'auto',
+                        'width': 'auto'
+                    });
+                }
+            });
         });
     </script>
 @stop

@@ -28,13 +28,13 @@
             border-radius: 5px;
         }
 
-            .content {
+        .content {
             height: 50%;
             /* border: 1px solid black; */
             /* Solo para ilustrar los bordes */
         }
 
-        table.fecha{
+        table.fecha {
             border-collapse: separate;
             border-radius: 5px;
         }
@@ -134,18 +134,37 @@
         </table>
 
 
-        <table class="otra">
+        <table class="otra" style="width: 100%; table-layout: fixed;">
             <tr>
-                <td colspan="2"><b>Técnico</b>
+                <td colspan="2" style="width: 50%; padding: 10px; text-align: center; vertical-align: top;">
+                    <b>Técnico</b>
                     <br>
-                    <center>_________________________________<br>{{ $orden->tecnico }}</center>
+                    @if ($user->signature)
+                        <div style="text-align: center;">
+                            <!-- Definimos un tamaño fijo para la firma -->
+                            <img src="{{ public_path('storage/' . $user->signature) }}" alt="Firma" width="150"
+                                height="60" style="display: block; margin: 0 auto;">
+                        </div>
+                    @else
+                        <div style="display: block; margin: 0 auto;width:150px; height:60px ;"></div>
+                    @endif
+                    <div style="text-align: center;">
+                        <div style="border-top: 1px solid black; width: 80%; margin: 5px auto;"></div>
+                        {{ $orden->tecnico }}
+                    </div>
                 </td>
-                <td colspan="2"><b>Cliente</b>
+                <td colspan="2" style="width: 50%; padding: 10px; text-align: center; vertical-align: top;">
+                    <b>Cliente</b>
                     <br>
-                    <center>_________________________________<br>{{ $orden->nomcliente }}</center>
+                    <div style="display: block; margin: 0 auto;width:150px; height:60px ;"></div>
+                    <div style="text-align: center;">
+                        <div style="border-top: 1px solid black; width: 80%; margin: 5px auto;"></div>
+                        {{ $orden->nomcliente }}
+                    </div>
                 </td>
             </tr>
         </table>
+
 
         <p>
             <font size="1"><i>

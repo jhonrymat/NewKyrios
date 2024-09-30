@@ -2,7 +2,7 @@
 <div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form id="editForm" method="POST">
+            <form id="editForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-primary text-white">
@@ -74,6 +74,26 @@
                     <div class="form-group">
                         <label for="otros">Otros</label>
                         <input type="text" name="otros" id="otros" class="form-control" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-center align-items-center" id="imageContainer" style="min-height: 200px; overflow: hidden;">
+                            {{-- Imagen centrada con funcionalidad de zoom --}}
+                            <img id="imagenE" name="imagenE" alt="Imagen del producto" width="200" class="zoomable-image"
+                                 style="cursor: zoom-in; transition: transform 0.3s ease;">
+                            <span id="noImageMessage" style="display: none;"></span>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="product_image">Imagen del Producto</label>
+                                <input type="file" name="product_image" class="form-control" accept="image/*"
+                                    capture="camera">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">

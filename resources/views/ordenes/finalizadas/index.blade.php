@@ -33,6 +33,7 @@
                                 <th>Marca</th>
                                 <th>Modelo</th>
                                 <th>Tecnico</th>
+                                <th>Foto</th>
                                 <th>Configuraciones</th>
                             </tr>
                         </thead>
@@ -43,11 +44,33 @@
         </div>
         @include('ordenes.finalizadas.edit-modal')
         @include('ordenes.finalizadas.delete-modal')
+        {{-- ver imagenes --}}
+        @include('ordenes.modal.image')
     </div>
 @endsection
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css">
+    <style>
+        #imageContainer {
+            width: auto;
+            /* Ajuste automático del ancho según el contenido */
+            height: auto;
+            /* Ajuste automático del alto según el contenido */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Asegura que el contenido que se salga del contenedor se oculte */
+        }
+
+        #imagenE {
+            max-width: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
+            max-height: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
+        }
+    </style>
 @stop
 
 @section('js')
@@ -89,9 +112,27 @@
                         name: 'tecnico'
                     },
                     {
+                        data: 'product_image', // Nueva columna para la imagen
+                        name: 'product_image',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `<img src="/storage/${data}" class="img-thumbnail" width="50" height="50" style="cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="/storage/${data}">`;
+                            } else {
+                                return 'No image';
+                            }
+                        }
+                    },
+                    {
                         data: 'codigo',
                         name: 'codigo',
                         render: function(data, type, row) {
+                            // Crear el mensaje para el cliente
+                            var mensaje =
+                                `Hola ${row.nomcliente}, tu equipo ${row.marca} ${row.modelo} ha sido reparado y está listo para ser entregado.`;
+                            var mensajeCodificado = encodeURIComponent(mensaje);
+                            var whatsappLink =
+                                `https://wa.me/57${row.celcliente}?text=${mensajeCodificado}`;
+
                             return `
                                 <a href="/admin/orden/${data}/finalizados" target="_blank" class="btn btn-warning btn-sm">
                                     <i class="fas fa-file-pdf"></i>
@@ -102,6 +143,8 @@
                                 <button class="btn btn-danger btn-sm deleteApp" data-id="${data}">
                                     <i class="fa fa-trash"></i>
                                 </button>
+                                <a href="${whatsappLink}" target="_blank" class="btn btn-success btn-sm">
+                                    <i class="fab fa-whatsapp"></i></a>
                             `;
                         }
                     }
@@ -152,6 +195,15 @@
                     $('#notatecnico').val(data.notatecnico);
                     $('#valor').val(data.valor);
                     $('#fechafin').val(fechaFormateada);
+                    // Cargar la imagen si existe
+                    if (data.product_image) {
+                        $('#imagenE').attr('src', `/storage/${data.product_image}`).show();
+                        $('#noImageMessage').hide(); // Oculta el mensaje si hay imagen
+                    } else {
+                        $('#imagenE').hide();
+                        $('#noImageMessage').text('No hay imagen disponible').show(); // Mostrar mensaje
+                    }
+
 
                     // Establecer la acción del formulario
                     $('#editForm').attr('action', `/admin/orden/edit/finalizadas/${ordenId}`);
@@ -162,14 +214,16 @@
 
         $('#editForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
-            var formData = $(this).serialize(); // Serializar los datos del formulario
+            var formData = new FormData(this); // Serializar los datos del formulario
             var ordenId = $(this).attr('action').split('/').pop(); // Obtener el ID de la orden desde la URL
 
             $.ajax({
-                type: "PUT",
+                type: "POST",
                 url: "/admin/orden/edit/finalizadas/" +
                     ordenId, // Generar correctamente la URL
                 data: formData,
+                processData: false, // Impedir que jQuery procese los datos
+                contentType: false, // Impedir que jQuery establezca el contentType
                 success: function(response) {
                     if (response.success) {
                         Swal.fire(
@@ -234,6 +288,61 @@
                                 'error'
                             );
                         }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Evento para abrir el modal y cargar la imagen en él
+            $('#ordenes-table').on('click', 'img[data-toggle="modal"]', function() {
+                var imageUrl = $(this).data('image');
+                $('#modalImage').attr('src', imageUrl);
+            });
+
+            // Funcionalidad de zoom en la imagen del modal
+            $('#modalImage').on('click', function() {
+                if ($(this).css('cursor') === 'zoom-in') {
+                    $(this).css({
+                        'transform': 'scale(1.5)',
+                        'cursor': 'zoom-out'
+                    });
+                } else {
+                    $(this).css({
+                        'transform': 'scale(1)',
+                        'cursor': 'zoom-in'
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Aplicar el zoom y ajustar el tamaño del contenedor dinámicamente
+            $('.zoomable-image').on('click', function() {
+                let $image = $(this);
+                let $container = $image.closest('#imageContainer'); // Obtener el contenedor
+
+                if ($image.css('cursor') === 'zoom-in') {
+                    $image.css({
+                        'transform': 'scale(2)',
+                        'cursor': 'zoom-out',
+                        'transition': 'transform 0.3s ease'
+                    });
+                    $container.css({
+                        'height': $image.outerHeight(true) * 2 + 'px',
+                        'width': $image.outerWidth(true) * 2 + 'px'
+                    });
+                } else {
+                    $image.css({
+                        'transform': 'scale(1)',
+                        'cursor': 'zoom-in',
+                        'transition': 'transform 0.3s ease'
+                    });
+                    $container.css({
+                        'height': 'auto',
+                        'width': 'auto'
                     });
                 }
             });

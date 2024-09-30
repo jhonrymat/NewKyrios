@@ -134,7 +134,7 @@ return [
     'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
-    'usermenu_profile_url' => false,
+    'usermenu_profile_url' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -258,7 +258,7 @@ return [
     'login_url' => 'login',
     'password_reset_url' => 'password/reset',
     'password_email_url' => 'password/email',
-    'profile_url' => false,
+    'profile_url' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -315,13 +315,13 @@ return [
                 [
                     'text'  => 'Ordenes Pendientes',
                     'route' => 'ordenes.pendientes',
-                    'can'   => 'ordenes.pendientes',
+                    'can'   => 'ordenes.view',
                     'icon'  => 'fas fa-fw fa-file-alt',
                 ],
                 [
                     'text'  => 'Ordenes Finalizadas',
                     'route' => 'ordenes.finalizadas',
-                    'can'   => 'ordenes.finalizadas',
+                    'can'   => 'ordenes.finalizar',
                     'icon'  => 'fas fa-fw fa-check-circle',
                 ],
                 [

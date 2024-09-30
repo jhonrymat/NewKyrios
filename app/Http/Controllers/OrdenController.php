@@ -6,6 +6,8 @@ use App\Models\Orden;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class OrdenController extends Controller
@@ -14,10 +16,14 @@ class OrdenController extends Controller
     {
         // Obtener los datos de la orden desde la base de datos
         $orden = Orden::where('codigo', $norden)->firstOrFail();
+        $user = Auth::user();
 
 
         // Cargar la vista y pasar los datos de la orden
-        $pdf = Pdf::loadView('ordenes.pdfpendientes', compact('orden'));
+        $pdf = Pdf::loadView('ordenes.pdfpendientes', [
+            'user' => $user,
+            'orden' => $orden
+        ]);
 
         // Descargar el PDF
         return $pdf->stream('Orden No ' . $norden . '.pdf');
@@ -27,10 +33,14 @@ class OrdenController extends Controller
     {
         // Obtener los datos de la orden desde la base de datos
         $orden = Orden::where('codigo', $norden)->firstOrFail();
+        $user = Auth::user();
 
 
         // Cargar la vista y pasar los datos de la orden
-        $pdf = Pdf::loadView('ordenes.pdffinalizados', compact('orden'));
+        $pdf = Pdf::loadView('ordenes.pdffinalizados', [
+            'user' => $user,
+            'orden' => $orden
+        ]);
 
         // Descargar el PDF
         return $pdf->stream('Orden No ' . $norden . '.pdf');
@@ -44,7 +54,7 @@ class OrdenController extends Controller
         if ($request->ajax()) {
             $ordenes = Orden::where('estado', 'PENDIENTE')
                 ->orderBy('codigo', 'desc')
-                ->select(['codigo', 'nomcliente', 'marca', 'fecha', 'celcliente', 'tecnico', 'valor', 'modelo', 'notacliente', 'observaciones', 'reparado']);
+                ->select(['codigo', 'nomcliente', 'marca', 'fecha', 'celcliente', 'tecnico', 'valor', 'modelo', 'notacliente', 'observaciones', 'reparado', 'product_image']);
 
             return DataTables::of($ordenes)
                 ->make(true);
@@ -66,7 +76,7 @@ class OrdenController extends Controller
         if ($request->ajax()) {
             $ordenes = Orden::where('estado', 'ENTREGADO')
                 ->orderBy('codigo', 'desc')
-                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico']);
+                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico', 'product_image']);
 
             return DataTables::of($ordenes)
                 ->make(true);
@@ -80,7 +90,7 @@ class OrdenController extends Controller
         if ($request->ajax()) {
             $ordenes = Orden::where('estado', 'EN BODEGA')
                 ->orderBy('codigo', 'desc')
-                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico']);
+                ->select(['codigo', 'fecha', 'nomcliente', 'celcliente', 'marca', 'modelo', 'tecnico', 'product_image']);
 
             return DataTables::of($ordenes)
                 ->make(true);
@@ -104,20 +114,21 @@ class OrdenController extends Controller
             'otros' => 'required',
             'notacliente' => 'required|string',
             'valor' => 'required|numeric',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
         ]);
 
         // Convertir el valor de 'fecha' a un objeto Carbon
         $fechaHora = Carbon::parse($request->fecha);
-
-        // Extraer solo la fecha
-        $fecha = $fechaHora->toDateString(); // Ejemplo: '2024-09-05'
-
-        // Extraer solo la hora
+        $fecha = $fechaHora->toDateString();
         $hora = $fechaHora->toTimeString(); // Ejemplo: '14:30:00'
-        $fechaOriginal = $fecha; // Recibe la fecha en formato 'YYYY-MM-DD'
-        $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fechaOriginal)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
+        $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fecha)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
 
+        // Manejar la imagen si existe
+        $imagePath = null;
+        if ($request->hasFile('product_image')) {
+            $imagePath = $request->file('product_image')->store('product_images', 'public'); // Guardar en 'storage/app/public/product_images'
+        }
 
         $orden = Orden::create([
             'fecha' => $fechaFormateada,
@@ -135,7 +146,9 @@ class OrdenController extends Controller
             'observaciones' => strtoupper($request->observaciones),
             'estado' => 'PENDIENTE', // Puedes establecer un estado por defecto si es necesario
             'horainicio' => $hora,
-            'valor' => $request->valor
+            'valor' => $request->valor,
+            'reparado' => '',
+            'product_image' => $imagePath, // Guardar la ruta de la imagen
 
         ]);
 
@@ -161,10 +174,23 @@ class OrdenController extends Controller
             'observacionesE' => 'nullable|string',
             'valorE' => 'nullable|numeric',
             'estadoE' => 'required|string',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
         $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Manejar la imagen si se carga una nueva
+        if ($request->hasFile('product_image')) {
+            // Eliminar la imagen anterior si es necesario
+            if ($orden->product_image) {
+                Storage::disk('public')->delete($orden->product_image);
+            }
+
+            // Guardar la nueva imagen
+            $imagePath = $request->file('product_image')->store('product_images', 'public');
+            $orden->product_image = $imagePath;
+        }
 
         // Actualizar la orden con los nuevos datos
         $orden->update([
@@ -229,7 +255,18 @@ class OrdenController extends Controller
             'estado' => 'ENTREGADO',
         ]);
 
-        return response()->json(['success' => 'Orden actualizada correctamente.']);
+        // Crear enlace de WhatsApp
+        $mensaje = "Hola " . strtoupper($request->nomclienteFin) . ", tu equipo " . strtoupper($request->equipoFin) . " ha sido reparado y está listo para ser entregado. Gracias por confiar en nosotros.";
+        $mensajeCodificado = urlencode($mensaje);
+
+        // Número de teléfono del cliente
+        $numeroTelefono = '57' . $request->celcliente; // Asegúrate de agregar el código de país
+        $whatsappLink = "https://wa.me/{$numeroTelefono}?text={$mensajeCodificado}";
+
+        return response()->json([
+            'success' => 'Orden actualizada correctamente.',
+            'whatsapp_link' => $whatsappLink,
+        ]);
     }
 
     public function updateBodega(Request $request, $codigo)
@@ -247,6 +284,7 @@ class OrdenController extends Controller
             'notacliente' => 'required|string',
             'observaciones' => 'nullable|string',
             'valor' => 'nullable|numeric',
+            'estado' => 'nullable|string',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -266,6 +304,7 @@ class OrdenController extends Controller
             'notacliente' => strtoupper($request->notacliente),
             'observaciones' => strtoupper($request->observaciones),
             'valor' => $request->valor,
+            'estado' => $request->estado,
         ]);
 
         return response()->json(['success' => 'Orden actualizada correctamente.']);
@@ -286,7 +325,8 @@ class OrdenController extends Controller
             'notatecnico' => 'required|string',
             'observaciones' => 'nullable|string',
             'valor' => 'nullable|numeric',
-            'fechafin' => 'required'
+            'fechafin' => 'required',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -296,7 +336,16 @@ class OrdenController extends Controller
         $fechaOriginal = $request->fechafin; // Recibe la fecha en formato 'YYYY-MM-DD'
         $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fechaOriginal)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
 
+        if ($request->hasFile('product_image')) {
+            // Eliminar la imagen anterior si es necesario
+            if ($orden->product_image) {
+                Storage::disk('public')->delete($orden->product_image);
+            }
 
+            // Guardar la nueva imagen
+            $imagePath = $request->file('product_image')->store('product_images', 'public');
+            $orden->product_image = $imagePath;
+        }
 
         // Actualizar la orden con los nuevos datos
         $orden->update([
@@ -323,6 +372,11 @@ class OrdenController extends Controller
     {
         // Encontrar la orden por el campo 'codigo'
         $orden = Orden::where('codigo', $codigo)->firstOrFail();
+
+        // Verificar si la orden tiene una imagen asociada y eliminarla del almacenamiento
+        if ($orden->product_image) {
+            Storage::disk('public')->delete($orden->product_image);
+        }
 
         // Eliminar la orden
         $orden->delete();

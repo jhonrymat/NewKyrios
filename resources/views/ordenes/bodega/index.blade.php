@@ -33,6 +33,7 @@
                                 <th>Marca</th>
                                 <th>Modelo</th>
                                 <th>Tecnico</th>
+                                <th>Foto</th>
                                 <th>Configuraciones</th>
                             </tr>
                         </thead>
@@ -43,11 +44,33 @@
         </div>
         @include('ordenes.bodega.edit-modal')
         @include('ordenes.bodega.delete-modal')
+        {{-- ver imagenes --}}
+        @include('ordenes.modal.image')
     </div>
 @endsection
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css">
+    <style>
+        #imageContainer {
+            width: auto;
+            /* Ajuste automático del ancho según el contenido */
+            height: auto;
+            /* Ajuste automático del alto según el contenido */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Asegura que el contenido que se salga del contenedor se oculte */
+        }
+
+        #imagenE {
+            max-width: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
+            max-height: 100%;
+            /* Asegura que la imagen no se salga del contenedor */
+        }
+    </style>
 @stop
 
 @section('js')
@@ -89,11 +112,22 @@
                         name: 'tecnico'
                     },
                     {
+                        data: 'product_image', // Nueva columna para la imagen
+                        name: 'product_image',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `<img src="/storage/${data}" class="img-thumbnail" width="50" height="50" style="cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="/storage/${data}">`;
+                            } else {
+                                return 'No image';
+                            }
+                        }
+                    },
+                    {
                         data: 'codigo',
                         name: 'codigo',
                         render: function(data, type, row) {
                             return `
-                                <a href="/admin/orden/${data}/pendiente" target="_blank" class="btn btn-warning btn-sm">
+                                <a href="/admin/orden/${data}/pendientes" target="_blank" class="btn btn-warning btn-sm">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
                                 <button class="btn btn-primary btn-sm editOrder" data-id="${data}">
@@ -231,5 +265,28 @@
         });
     </script>
 
+    <script>
+        $(document).ready(function() {
+            // Evento para abrir el modal y cargar la imagen en él
+            $('#ordenes-table').on('click', 'img[data-toggle="modal"]', function() {
+                var imageUrl = $(this).data('image');
+                $('#modalImage').attr('src', imageUrl);
+            });
 
+            // Funcionalidad de zoom en la imagen del modal
+            $('#modalImage').on('click', function() {
+                if ($(this).css('cursor') === 'zoom-in') {
+                    $(this).css({
+                        'transform': 'scale(1.5)',
+                        'cursor': 'zoom-out'
+                    });
+                } else {
+                    $(this).css({
+                        'transform': 'scale(1)',
+                        'cursor': 'zoom-in'
+                    });
+                }
+            });
+        });
+    </script>
 @stop
