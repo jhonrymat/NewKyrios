@@ -582,7 +582,7 @@
         \nEstado: ${estado}`;
 
             var whatsappUrl =
-                `https://api.whatsapp.com/send?phone=573105320659&text=${encodeURIComponent(mensaje)}`;
+                `https://api.whatsapp.com/send?phone=573505668364&text=${encodeURIComponent(mensaje)}`;
 
             window.open(whatsappUrl, '_blank');
         });
