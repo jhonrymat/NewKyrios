@@ -62,19 +62,6 @@ Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefi
 Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->middleware('can:ordenes.finalizar')->name('ordenes.finalizar');
 Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->middleware('can:ordenes.update')->name('ordenes.update.reparado');
 
-// Órdenes
-Route::get('/orden/{codigo}/pendientes', [OrdenController::class, 'generarPDFpendientes'])->middleware('can:ordenes.view')->name('ordenes.pdf.pendientes');
-Route::get('/orden/{codigo}/finalizados', [OrdenController::class, 'generarPDFfinalizados'])->middleware('can:ordenes.view')->name('ordenes.pdf.finalizados');
-Route::get('/orden/pendiente', [OrdenController::class, 'pendientes'])->middleware('can:ordenes.view')->name('ordenes.pendientes');
-Route::get('/orden/finalizadas', [OrdenController::class, 'finalizadas'])->middleware('can:ordenes.view')->name('ordenes.finalizadas');
-Route::post('/orden/store', [OrdenController::class, 'store'])->middleware('can:ordenes.create')->name('ordenes.store');
-Route::put('orden/{codigo}', [OrdenController::class, 'update'])->middleware('can:ordenes.update')->name('ordenes.update');
-Route::delete('orden/{codigo}', [OrdenController::class, 'destroy'])->middleware('can:ordenes.delete')->name('ordenes.destroy');
-Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->middleware('can:ordenes.edit')->name('ordenes.edit');
-Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->middleware('can:ordenes.update')->name('ordenes.update.finalizadas');
-Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->middleware('can:ordenes.finalizar')->name('ordenes.finalizar');
-Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->middleware('can:ordenes.update')->name('ordenes.update.reparado');
-
 // Bodega
 Route::get('/orden/bodega', [OrdenController::class, 'bodega'])->middleware('can:ordenes.view')->name('ordenes.bodega');
 Route::put('orden/edit/bodega/{codigo}', [OrdenController::class, 'updateBodega'])->middleware('can:ordenes.update')->name('ordenes.update.bodega');

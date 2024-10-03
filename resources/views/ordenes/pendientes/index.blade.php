@@ -385,19 +385,6 @@
                             'success'
                         );
 
-                        // Mostrar el enlace de WhatsApp
-                        if (response.whatsapp_link) {
-                            Swal.fire({
-                                title: 'La orden ha sido finalizada correctamente.',
-                                text: 'Puedes enviar un mensaje al cliente:',
-                                html: `<a href="${response.whatsapp_link}" target="_blank" class="btn btn-success">Enviar por WhatsApp</a>`,
-                                icon: 'success',
-                                showCloseButton: true,
-                                showCancelButton: true,
-                                focusConfirm: false,
-                                confirmButtonText: 'Cerrar'
-                            });
-                        }
 
                         $('#finalizarOrderModal').modal('hide'); // Cerrar modal
                         $('#ordenes-table').DataTable().ajax.reload(); // Recargar tabla
@@ -406,8 +393,30 @@
                 },
                 error: function(error) {
                     console.log(error);
-                    alert("Error al finalizar la orden");
+
+                    // Verifica si el error tiene un formato JSON y contiene el mensaje de error
+                    if (error.responseJSON && error.responseJSON.errors) {
+                        // Extrae los errores (en este caso celcliente)
+                        var errorMessages = Object.values(error.responseJSON.errors).map(function(msg) {
+                            return msg[0]; // En este caso toma el primer mensaje de cada campo
+                        }).join('\n'); // Únelos con un salto de línea si hay más de uno
+
+                        // Muestra los errores en un SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Errores de validación',
+                            text: errorMessages
+                        });
+                    } else {
+                        // Muestra un error genérico si no está disponible el detalle del error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo finalizar la orden'
+                        });
+                    }
                 }
+
             });
         });
     </script>
@@ -526,14 +535,26 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            text: 'Estado de reparación actualizado correctamente',
-                            timer: 1500
-                        });
+                        // Mostrar el enlace de WhatsApp
+                        if (response.whatsapp_link && response.estado == 'reparado') {
+                            Swal.fire({
+                                title: 'La orden ha cambiado de estado correctamente.',
+                                text: 'Puedes enviar un mensaje al cliente:',
+                                html: `<a href="${response.whatsapp_link}" target="_blank" class="btn btn-success">Enviar por WhatsApp</a>`,
+                                icon: 'success',
+                                showCloseButton: true,
+                                showCancelButton: true,
+                                focusConfirm: false,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'La orden ha cambiado de estado correctamente.',
+                                icon: 'success'
+                            });
+                        }
+                        $('#ordenes-table').DataTable().ajax.reload();
                     }
-                    $('#ordenes-table').DataTable().ajax.reload();
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) { // Unprocessable Entity (validación fallida)
@@ -558,6 +579,7 @@
             });
         });
     </script>
+
     {{-- optimizando select2 --}}
     <script>
         $(document).ready(function() {
@@ -648,6 +670,37 @@
                     $container.css({
                         'height': 'auto',
                         'width': 'auto'
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '[data-toggle="modal"][data-target="#imageModal"]', function() {
+            var imageUrl = $(this).data('image');
+
+            // Asignar la imagen al modal
+            $('#modalImage').attr('src', imageUrl);
+
+            // Asignar la URL para el botón de descarga
+            $('#downloadImage').attr('href', imageUrl);
+
+            // Funcionalidad para el botón de compartir (solo si es compatible con el navegador)
+            $('#shareImage').off('click').on('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Imagen del Producto',
+                        text: 'Mira esta imagen del producto',
+                        url: imageUrl
+                    }).then(() => {
+                        console.log('Compartido con éxito.');
+                    }).catch((error) => {
+                        console.log('Error al compartir', error);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Compartir no compatible',
+                        text: 'Tu navegador no soporta la función de compartir.'
                     });
                 }
             });

@@ -114,7 +114,7 @@ class OrdenController extends Controller
             'otros' => 'required',
             'notacliente' => 'required|string',
             'valor' => 'required|numeric',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
 
         ]);
 
@@ -174,7 +174,7 @@ class OrdenController extends Controller
             'observacionesE' => 'nullable|string',
             'valorE' => 'nullable|numeric',
             'estadoE' => 'required|string',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -255,17 +255,8 @@ class OrdenController extends Controller
             'estado' => 'ENTREGADO',
         ]);
 
-        // Crear enlace de WhatsApp
-        $mensaje = "Hola " . strtoupper($request->nomclienteFin) . ", tu equipo " . strtoupper($request->equipoFin) . " ha sido reparado y está listo para ser entregado. Gracias por confiar en nosotros.";
-        $mensajeCodificado = urlencode($mensaje);
-
-        // Número de teléfono del cliente
-        $numeroTelefono = '57' . $request->celcliente; // Asegúrate de agregar el código de país
-        $whatsappLink = "https://wa.me/{$numeroTelefono}?text={$mensajeCodificado}";
-
         return response()->json([
-            'success' => 'Orden actualizada correctamente.',
-            'whatsapp_link' => $whatsappLink,
+            'success' => 'Orden actualizada correctamente.'
         ]);
     }
 
@@ -326,7 +317,7 @@ class OrdenController extends Controller
             'observaciones' => 'nullable|string',
             'valor' => 'nullable|numeric',
             'fechafin' => 'required',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
@@ -428,11 +419,26 @@ class OrdenController extends Controller
         $orden = Orden::findOrFail($id);
 
         // Actualizar solo el campo 'reparado'
-        $orden->reparado = $request->input('reparado') ? 'reparado' : null;
+        $orden->reparado = $request->input('reparado') ? 'reparado' : '';
 
         $orden->save();
 
-        return response()->json(['success' => 'Estado de reparación actualizado correctamente']);
+        $estado = $orden->reparado;
+
+        // Crear enlace de WhatsApp
+        $mensaje = "Hola " . strtoupper($orden->nomcliente) . ", tu equipo " . strtoupper($orden->equipo) . " ha sido reparado y está listo para ser entregado. Gracias por confiar en nosotros.";
+        $mensajeCodificado = urlencode($mensaje);
+
+        // Número de teléfono del cliente
+        $numeroTelefono = '57' . $orden->celcliente; // Asegúrate de agregar el código de país
+        $whatsappLink = "https://wa.me/{$numeroTelefono}?text={$mensajeCodificado}";
+
+        return response()->json([
+            'success' => 'Estado de reparación actualizado correctamente',
+            'whatsapp_link' => $whatsappLink,
+            'estado' => $estado,
+
+        ]);
     }
 
 

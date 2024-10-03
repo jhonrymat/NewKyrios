@@ -11,6 +11,13 @@
             <div class="modal-body text-center">
                 <img id="modalImage" src="" class="img-fluid" style="max-width: 100%; cursor: zoom-in;">
             </div>
+            <div class="modal-footer">
+                <!-- Botón para descargar la imagen -->
+                <a id="downloadImage" href="#" download="product_image.jpg" class="btn btn-primary">Descargar Imagen</a>
+
+                <!-- Botón para compartir la imagen -->
+                <button id="shareImage" class="btn btn-secondary">Compartir Imagen</button>
+            </div>
         </div>
     </div>
 </div>

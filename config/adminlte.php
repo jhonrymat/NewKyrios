@@ -399,7 +399,6 @@ return [
                 [
                     'text' => 'Logs',
                     'url' => 'log-viewer',
-                    'can'  => 'log-viewer',
                     'icon' => 'fas fa-exclamation-triangle',
                 ],
 
