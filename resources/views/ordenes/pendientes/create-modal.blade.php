@@ -41,7 +41,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <x-adminlte-select2 id="nomcliente" name="nomcliente" label="Cliente" igroup-size="sm"
+                                <x-adminlte-select2 class="uppercase-input" id="nomcliente" name="nomcliente" label="Cliente" igroup-size="sm"
                                     required multiple>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
@@ -70,7 +70,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <x-adminlte-select2 id="equipo" name="equipo" label="Equipo" igroup-size="sm"
+                                <x-adminlte-select2 class="uppercase-input" id="equipo" class="uppercase-input" name="equipo" label="Equipo" igroup-size="sm"
                                     multiple>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
@@ -82,7 +82,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <x-adminlte-select2 id="marca" name="marca" label="Marca" igroup-size="sm"
+                                <x-adminlte-select2 class="uppercase-input" id="marca" name="marca" label="Marca" igroup-size="sm"
                                     required multiple>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
@@ -94,7 +94,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <x-adminlte-select2 id="modelo" name="modelo" label="Modelo" igroup-size="sm"
+                                <x-adminlte-select2 class="uppercase-input" id="modelo" name="modelo" label="Modelo" igroup-size="sm"
                                     required multiple>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
@@ -113,7 +113,7 @@
                                     <i class="fas fa-barcode"></i>
                                 </div>
                             </div>
-                            <input type="text" class="form-control" id="serial" name="serial" placeholder=""
+                            <input type="text" class="form-control uppercase-input" id="serial" name="serial" placeholder=""
                                 required>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                                             <i class="fas fa-plug"></i>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" id="cargador" name="cargador"
+                                    <input type="text" class="form-control uppercase-input" id="cargador" name="cargador"
                                         placeholder="" required>
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
                                             <i class="fas fa-car-battery"></i>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" id="bateria" name="bateria"
+                                    <input type="text" class="form-control uppercase-input" id="bateria" name="bateria"
                                         placeholder="" required>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@
                                             <i class="fas fa-pencil-alt"></i>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" id="otros" name="otros"
+                                    <input type="text" class="form-control uppercase-input" id="otros" name="otros"
                                         placeholder="" required>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <x-adminlte-textarea name="notacliente" label="Nota del Cliente" rows=4
-                                    igroup-size="sm" placeholder="Escriba una descripción..." required>
+                                    igroup-size="sm" placeholder="Escriba una descripción..." class="uppercase-input" required>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
                                             <i class="fas fa-lg fa-file-alt"></i>
@@ -189,7 +189,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <x-adminlte-textarea name="observaciones" label="Observaciones" rows=4
-                                    igroup-size="sm" placeholder="Escriba una observación..." required>
+                                    igroup-size="sm" placeholder="Escriba una observación..." class="uppercase-input" required>
                                     <x-slot name="prependSlot">
                                         <div class="input-group-text bg-gradient-red">
                                             <i class="fas fa-lg fa-file-alt"></i>

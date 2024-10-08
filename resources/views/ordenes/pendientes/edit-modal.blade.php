@@ -101,8 +101,8 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="product_image">Actualizar Imágenes del Producto</label>
-                                <input type="file" name="product_image[]" class="form-control" accept="image/*" multiple>
+                                <label for="product_image">Agregar Más Imágenes del Producto</label>
+                                <input type="file" name="product_image[]" class="form-control" accept="image/*" capture="camera" multiple>
                             </div>
                         </div>
                     </div>

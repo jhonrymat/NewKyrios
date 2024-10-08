@@ -102,6 +102,11 @@
             max-height: 100%;
             /* Asegura que la imagen no se salga del contenedor */
         }
+
+        .uppercase-input {
+            text-transform: uppercase;
+            /* Muestra el texto en mayúsculas */
+        }
     </style>
 @stop
 
@@ -623,6 +628,36 @@
                     tags: true,
                     minimumInputLength: 1
                 });
+
+                // Convertir siempre el valor a mayúsculas cuando se abre el menú de Select2
+                $(selector).on('select2:open', function() {
+                    let inputField = $('.select2-search__field'); // Campo de búsqueda de Select2
+
+                    // Agregar un evento de input para forzar a mayúsculas en tiempo real
+                    inputField.on('input', function() {
+                        let start = this.selectionStart; // Guardar posición del cursor
+                        let end = this.selectionEnd;
+                        this.value = this.value.toUpperCase(); // Convertir a mayúsculas
+                        this.setSelectionRange(start, end); // Restaurar posición del cursor
+                    });
+                });
+
+                // Convertir las etiquetas seleccionadas a mayúsculas cuando se seleccionan
+                $(selector).on('select2:selecting', function(e) {
+                    e.params.args.data.text = e.params.args.data.text.toUpperCase();
+                    e.params.args.data.id = e.params.args.data.text; // Asegurar que el ID también esté en mayúsculas
+                });
+
+                // Convertir las opciones seleccionadas a mayúsculas al cerrar el select
+                $(selector).on('select2:close', function() {
+                    let selectedOptions = $(this).val();
+                    if (selectedOptions) {
+                        let upperCaseOptions = selectedOptions.map(function(option) {
+                            return option.toUpperCase();
+                        });
+                        $(this).val(upperCaseOptions).trigger('change');
+                    }
+                });
             }
 
             // Inicializar Select2 para diferentes campos
@@ -632,6 +667,7 @@
             inicializarSelect2('#modelo', 'modelo');
         });
     </script>
+
     <script>
         $(document).ready(function() {
             // Evento para abrir el modal y cargar la imagen en él
@@ -724,24 +760,40 @@
             var ordenId = $(this).data('id'); // Obtener el ID de la orden
             var $imageWrapper = $(this).closest('.image-wrapper'); // Obtener el contenedor de la imagen
 
-            $.ajax({
-                url: "{{ route('ordenes.deleteImage', '') }}/" + ordenId,
-
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr(
-                        'content'), // Asegúrate de que el token esté presente
-                    image_path: imagePath
-                },
-                success: function(response) {
-                    Swal.fire('Eliminada', 'La imagen ha sido eliminada correctamente.', 'success');
-                    $imageWrapper.remove(); // Eliminar la imagen del DOM
-                },
-                error: function(error) {
-                    Swal.fire('Error', 'Hubo un problema al eliminar la imagen.', 'error');
+            // Mostrar la confirmación antes de eliminar
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esta acción!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, proceder con la eliminación de la imagen
+                    $.ajax({
+                        url: "{{ route('ordenes.deleteImage', '') }}/" + ordenId,
+                        type: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr(
+                                'content'), // Asegúrate de enviar el token CSRF
+                            image_path: imagePath
+                        },
+                        success: function(response) {
+                            Swal.fire('Eliminada', 'La imagen ha sido eliminada correctamente.',
+                                'success');
+                            $imageWrapper.remove(); // Eliminar la imagen del DOM
+                            $('#ordenes-table').DataTable().ajax.reload();
+                        },
+                        error: function(error) {
+                            Swal.fire('Error', 'Hubo un problema al eliminar la imagen.',
+                                'error');
+                        }
+                    });
                 }
             });
-
         });
     </script>
     <script>
