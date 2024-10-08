@@ -99,24 +99,24 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12 d-flex justify-content-center align-items-center" id="imageContainer" style="min-height: 200px; overflow: hidden;">
-                            {{-- Imagen centrada con funcionalidad de zoom --}}
-                            <img id="imagenE" name="imagenE" alt="Imagen del producto" width="200" class="zoomable-image"
-                                 style="cursor: zoom-in; transition: transform 0.3s ease;">
-                            <span id="noImageMessage" style="display: none;"></span>
-                        </div>
-                    </div>
-
-
-                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="product_image">Imagen del Producto</label>
-                                <input type="file" name="product_image" class="form-control" accept="image/*"
-                                    capture="camera">
+                                <label for="product_image">Actualizar Imágenes del Producto</label>
+                                <input type="file" name="product_image[]" class="form-control" accept="image/*" multiple>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Muestra las imágenes existentes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Imágenes existentes:</label>
+                            <div id="existingImagesContainer" class="d-flex flex-wrap">
+                                <!-- Aquí se mostrarán las imágenes existentes en miniatura -->
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

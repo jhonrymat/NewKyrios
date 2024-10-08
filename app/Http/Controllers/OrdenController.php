@@ -6,6 +6,7 @@ use App\Models\Orden;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
@@ -114,7 +115,7 @@ class OrdenController extends Controller
             'otros' => 'required',
             'notacliente' => 'required|string',
             'valor' => 'required|numeric',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'product_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
 
         ]);
 
@@ -124,11 +125,16 @@ class OrdenController extends Controller
         $hora = $fechaHora->toTimeString(); // Ejemplo: '14:30:00'
         $fechaFormateada = Carbon::createFromFormat('Y-m-d', $fecha)->format('d/m/Y'); // Convierte a 'DD/MM/YYYY'
 
-        // Manejar la imagen si existe
-        $imagePath = null;
+        $imagePaths = [];
         if ($request->hasFile('product_image')) {
-            $imagePath = $request->file('product_image')->store('product_images', 'public'); // Guardar en 'storage/app/public/product_images'
+            foreach ($request->file('product_image') as $image) {
+                $path = $image->store('product_images', 'public');
+                $imagePaths[] = $path; // Guardar cada ruta de imagen
+            }
         }
+
+        // Convertir las rutas de las imágenes a una cadena separada por comas para almacenarla en la base de datos
+        $imagePathsString = implode(',', $imagePaths);
 
         $orden = Orden::create([
             'fecha' => $fechaFormateada,
@@ -148,7 +154,7 @@ class OrdenController extends Controller
             'horainicio' => $hora,
             'valor' => $request->valor,
             'reparado' => '',
-            'product_image' => $imagePath, // Guardar la ruta de la imagen
+            'product_image' => $imagePathsString, // Guardar la cadena de rutas de imágenes
 
         ]);
 
@@ -174,23 +180,27 @@ class OrdenController extends Controller
             'observacionesE' => 'nullable|string',
             'valorE' => 'nullable|numeric',
             'estadoE' => 'required|string',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'product_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         // Encontrar la orden por el campo 'codigo', ya que es la llave primaria
         $orden = Orden::where('codigo', $codigo)->firstOrFail();
 
-        // Manejar la imagen si se carga una nueva
+        // Manejar las nuevas imágenes
+        $imagePaths = $orden->product_image ? explode(',', $orden->product_image) : [];
+
         if ($request->hasFile('product_image')) {
-            // Eliminar la imagen anterior si es necesario
-            if ($orden->product_image) {
-                Storage::disk('public')->delete($orden->product_image);
+            $newImagePaths = [];
+            foreach ($request->file('product_image') as $image) {
+                $path = $image->store('product_images', 'public');
+                $newImagePaths[] = $path;
             }
 
-            // Guardar la nueva imagen
-            $imagePath = $request->file('product_image')->store('product_images', 'public');
-            $orden->product_image = $imagePath;
+            // Añadir las nuevas imágenes a las existentes
+            $imagePaths = array_merge($imagePaths, $newImagePaths);
         }
+
+        $orden->product_image = implode(',', $imagePaths);
 
         // Actualizar la orden con los nuevos datos
         $orden->update([
@@ -211,6 +221,7 @@ class OrdenController extends Controller
 
         return response()->json(['success' => 'Orden actualizada correctamente.']);
     }
+
 
     //finalizar orden
     public function finalizar(Request $request, $codigo)
@@ -441,6 +452,34 @@ class OrdenController extends Controller
         ]);
     }
 
+    // Enviar mensaje de WhatsApp al cliente
+    public function enviarMensajeWhatsApp(Request $request, $id)
+    {
+        $orden = Orden::findOrFail($id);
+
+        // Crear mensaje con formato usando negritas y saltos de línea
+        $mensaje = "*Hola " . strtoupper($orden->nomcliente) . "*\n\n";
+        $mensaje .= "Nos comunicamos de *Kyrios Center* en relación con tu equipo *" . strtoupper($orden->equipo) . "*,\n";
+        $mensaje .= "asociado a la orden *N° " . $orden->codigo . "*.\n\n";
+        $mensaje .= "Queremos informarte lo siguiente:\n\n";
+        $mensaje .= "[Mensaje personalizado según el estado del equipo o la situación específica].\n\n";
+        $mensaje .= "Si tienes alguna pregunta o necesitas más información, no dudes en contactarnos.\n\n";
+        $mensaje .= "¡Gracias por confiar en nosotros!\n\n";
+        $mensaje .= "Saludos cordiales,\n";
+        $mensaje .= "*Equipo de Kyrios Center*";
+
+        // Codificar el mensaje para que sea compatible con URL
+        $mensajeCodificado = urlencode($mensaje);
+
+        // Número de teléfono del cliente
+        $numeroTelefono = '57' . $orden->celcliente; // Asegúrate de agregar el código de país
+        $whatsappLink = "https://wa.me/{$numeroTelefono}?text={$mensajeCodificado}";
+
+        return response()->json(['whatsapp_link' => $whatsappLink]);
+    }
+
+
+
 
     // buscar equipo
     public function buscarEquipo(Request $request)
@@ -483,6 +522,32 @@ class OrdenController extends Controller
         }
 
         return response()->json($resultados);
+    }
+
+    public function deleteImage(Request $request, $codigo)
+    {
+        $request->validate([
+            'image_path' => 'required|string'
+        ]);
+
+        $orden = Orden::where('codigo', $codigo)->firstOrFail();
+        $imagePath = $request->input('image_path');
+
+        // Convertir la cadena de imágenes a un array
+        $imagePaths = explode(',', $orden->product_image);
+
+        // Eliminar la imagen del array y del almacenamiento
+        if (($key = array_search($imagePath, $imagePaths)) !== false) {
+            unset($imagePaths[$key]); // Eliminar la imagen del array de rutas
+
+            Storage::disk('public')->delete($imagePath); // Eliminar la imagen del almacenamiento
+        }
+
+        // Actualizar el campo product_image con las imágenes restantes
+        $orden->product_image = implode(',', $imagePaths);
+        $orden->save();
+
+        return response()->json(['success' => 'Imagen eliminada correctamente.']);
     }
 
 

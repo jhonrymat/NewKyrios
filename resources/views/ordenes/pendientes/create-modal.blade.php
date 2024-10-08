@@ -33,7 +33,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="fecha">Fecha</label>
-                                <input type="text" name="fecha" class="form-control" value="{{ now() }}">
+                                <input type="date" name="fecha" class="form-control" value="{{ now()->format('Y-m-d') }}">
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="product_image">Imagen del Producto</label>
-                                <input type="file" name="product_image" class="form-control" accept="image/*" capture="camera">
+                                <input type="file" name="product_image[]" class="form-control" accept="image/*" capture="camera" multiple>
                             </div>
                         </div>
                     </div>

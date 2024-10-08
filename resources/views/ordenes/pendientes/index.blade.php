@@ -164,12 +164,29 @@
                         name: 'product_image',
                         render: function(data, type, row) {
                             if (data) {
-                                return `<img src="/storage/${data}" class="img-thumbnail" width="50" height="50" style="cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="/storage/${data}">`;
+                                // Convertir la cadena de rutas de imágenes a un array
+                                const imagePaths = data.split(',');
+
+                                // Crear un HTML para mostrar todas las imágenes
+                                let imagesHtml = '';
+                                imagePaths.forEach(path => {
+                                    imagesHtml += `
+                                        <div class="image-wrapper" style="position: relative; display: inline-block; margin: 5px;">
+                                            <img src="/storage/${path}" class="img-thumbnail" width="50" height="50" style="cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="/storage/${path}">
+                                            <button class="btn btn-danger btn-sm delete-image" data-path="${path}" data-id="${row.codigo}" style="position: absolute; top: 0; right: 0; transform: translate(50%, -50%);">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    `;
+                                });
+
+                                return imagesHtml; // Devolver el HTML con todas las imágenes
                             } else {
                                 return 'No image';
                             }
                         }
                     },
+
                     {
                         data: 'codigo',
                         name: 'codigo',
@@ -204,8 +221,9 @@
                                     data-id="${data}">
                                     <i class="fa fa-trash"></i>
                                 </button>
-
-
+                                <button class="btn btn-info btn-sm mb-2 whatsappMessage" data-id="${data}">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
                             `;
                         }
                     }
@@ -230,27 +248,10 @@
             var ordenId = $(this).data('id'); // Obtiene el id de la orden
 
             $.ajax({
-                url: `/admin/orden/${ordenId}/ajax`, // Ajusta según tu ruta
+                url: `/admin/orden/${ordenId}/ajax`, // Ruta para obtener los detalles de la orden
                 type: 'GET',
                 success: function(data) {
-                    // Convertir la fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'
-                    var fechafinOriginal = data.fechafin;
-                    if (fechafinOriginal != null) {
-                        var fechaFormateada = fechafinOriginal.split('/').reverse().join(
-                            '-'); // Convertir a 'DD/MM/YYYY'
-                    } else {
-                        // Obtener la fecha actual en formato 'YYYY-MM-DD' si no hay fecha original
-                        var today = new Date();
-                        var day = String(today.getDate()).padStart(2,
-                            '0'); // Asegurarse de que el día tenga dos dígitos
-                        var month = String(today.getMonth() + 1).padStart(2,
-                            '0'); // Los meses en JS son de 0 a 11
-                        var year = today.getFullYear();
-
-                        var fechaFormateada = day + '/' + month + '/' +
-                            year; // Formatear como 'YYYY-MM-DD'
-                    } // Completar los campos del formulario con los datos recibidos
-
+                    // Completar los campos del formulario con los datos recibidos
                     $('#ordenCodigoE').text(data.codigo);
                     $('#tecnicoE').val(data.tecnico);
                     $('#fechaE').val(data.fecha);
@@ -266,24 +267,35 @@
                     $('#otrosE').val(data.otros);
                     $('#notaclienteE').val(data.notacliente);
                     $('#observacionesE').val(data.observaciones);
-                    $('#notatecnicoE').val(data.notatecnico);
                     $('#valorE').val(data.valor);
-                    $('#fechafinE').val(fechaFormateada);
-                    // Cargar la imagen si existe
+
+                    // Manejar las imágenes existentes
                     if (data.product_image) {
-                        $('#imagenE').attr('src', `/storage/${data.product_image}`).show();
-                        $('#noImageMessage').hide(); // Oculta el mensaje si hay imagen
+                        const imagePaths = data.product_image.split(',');
+                        let imagesHtml = '';
+                        imagePaths.forEach((path, index) => {
+                            imagesHtml += `
+                                        <div class="image-wrapper" style="position: relative; display: inline-block; margin: 5px;">
+                                            <img src="/storage/${path}" class="img-thumbnail" width="50" height="50">
+                                        </div>`;
+                        });
+                        $('#existingImagesContainer').html(
+                            imagesHtml); // Mostrar las imágenes en el contenedor
                     } else {
-                        $('#imagenE').hide();
-                        $('#noImageMessage').text('No hay imagen disponible').show(); // Mostrar mensaje
+                        $('#existingImagesContainer').html('<p>No hay imágenes disponibles</p>');
                     }
 
-                    // Establecer la acción del formulario
+                    // Establecer la acción del formulario para actualizar
                     $('#editForm').attr('action', `/admin/orden/${ordenId}`);
                     $('#editOrderModal').modal('show'); // Mostrar el modal
+                },
+                error: function(error) {
+                    console.log('Error al cargar los detalles de la orden:', error);
+                    Swal.fire('Error', 'No se pudieron cargar los detalles de la orden.', 'error');
                 }
             });
         });
+
         $('#editForm').on('submit', function(e) {
             e.preventDefault(); // Evitar la recarga de la página
             var formData = new FormData(this); // Serializar los datos del formulario
@@ -702,6 +714,54 @@
                         title: 'Compartir no compatible',
                         text: 'Tu navegador no soporta la función de compartir.'
                     });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).on('click', '.delete-image', function() {
+            var imagePath = $(this).data('path'); // Obtener la ruta de la imagen a eliminar
+            var ordenId = $(this).data('id'); // Obtener el ID de la orden
+            var $imageWrapper = $(this).closest('.image-wrapper'); // Obtener el contenedor de la imagen
+
+            $.ajax({
+                url: "{{ route('ordenes.deleteImage', '') }}/" + ordenId,
+
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr(
+                        'content'), // Asegúrate de que el token esté presente
+                    image_path: imagePath
+                },
+                success: function(response) {
+                    Swal.fire('Eliminada', 'La imagen ha sido eliminada correctamente.', 'success');
+                    $imageWrapper.remove(); // Eliminar la imagen del DOM
+                },
+                error: function(error) {
+                    Swal.fire('Error', 'Hubo un problema al eliminar la imagen.', 'error');
+                }
+            });
+
+        });
+    </script>
+    <script>
+        $(document).on('click', '.whatsappMessage', function() {
+            var ordenId = $(this).data('id'); // Obtener el ID de la orden
+
+            // Realizar una solicitud AJAX para obtener el enlace de WhatsApp desde el controlador
+            $.ajax({
+                url: `/admin/orden/${ordenId}/send-whatsapp-message`, // Ruta hacia el controlador
+                type: 'GET',
+                success: function(response) {
+                    if (response.whatsapp_link) {
+                        // Abrir la URL de WhatsApp en una nueva pestaña
+                        window.open(response.whatsapp_link, '_blank');
+                    } else {
+                        Swal.fire('Error', 'No se pudo generar el enlace de WhatsApp.', 'error');
+                    }
+                },
+                error: function(error) {
+                    Swal.fire('Error', 'Hubo un problema al comunicarse con el servidor.', 'error');
                 }
             });
         });
