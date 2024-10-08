@@ -61,8 +61,8 @@ Route::get('/orden/{id}/edit', [OrdenController::class, 'edit'])->middleware('ca
 Route::put('orden/edit/finalizadas/{codigo}', [OrdenController::class, 'updatefinalizadas'])->middleware('can:ordenes.update')->name('ordenes.update.finalizadas');
 Route::put('orden/finalizar/{codigo}', [OrdenController::class, 'finalizar'])->middleware('can:ordenes.finalizar')->name('ordenes.finalizar');
 Route::put('/orden/update-reparado/{id}', [OrdenController::class, 'updateReparado'])->middleware('can:ordenes.update')->name('ordenes.update.reparado');
-Route::post('/orden/delete-image/{codigo}', [OrdenController::class, 'deleteImage'])->name('ordenes.deleteImage');
-Route::get('/orden/{id}/send-whatsapp-message', [OrdenController::class, 'enviarMensajeWhatsApp'])->name('ordenes.sendWhatsAppMessage');
+Route::post('/orden/delete-image/{codigo}', [OrdenController::class, 'deleteImage'])->middleware('can:ordenes.deleteImage')->name('ordenes.deleteImage');
+Route::get('/orden/{id}/send-whatsapp-message', [OrdenController::class, 'enviarMensajeWhatsApp'])->middleware('can:ordenes.sendWhatsAppMessage')->name('ordenes.sendWhatsAppMessage');
 
 
 
