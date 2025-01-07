@@ -32,8 +32,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="fecha">Fecha</label>
-                                <input type="date" name="fecha" class="form-control" value="{{ now()->format('Y-m-d') }}">
+                                <label for="fecha">Fecha y Hora</label>
+                                <input type="datetime-local" name="fecha" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}">
                             </div>
                         </div>
                     </div>

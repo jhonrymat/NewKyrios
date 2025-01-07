@@ -43,6 +43,7 @@
                                 <th class="none">Modelo</th>
                                 <th class="none">Nota Cliente</th>
                                 <th class="none">Observaciones</th>
+                                <th class="none">Hora inicio</th>
                                 <th>Foto</th>
                                 <th>Listo</th>
                                 <th>Configuraciones</th>
@@ -163,6 +164,10 @@
                     {
                         data: 'observaciones',
                         name: 'observaciones'
+                    },
+                    {
+                        data: 'horainicio',
+                        name: 'horainicio'
                     },
                     {
                         data: 'product_image', // Nueva columna para la imagen

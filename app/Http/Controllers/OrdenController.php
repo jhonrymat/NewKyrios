@@ -55,7 +55,7 @@ class OrdenController extends Controller
         if ($request->ajax()) {
             $ordenes = Orden::where('estado', 'PENDIENTE')
                 ->orderBy('codigo', 'desc')
-                ->select(['codigo', 'nomcliente', 'marca', 'fecha', 'celcliente', 'tecnico', 'valor', 'modelo', 'notacliente', 'observaciones', 'reparado', 'product_image']);
+                ->select(['codigo', 'nomcliente', 'marca', 'fecha', 'horainicio', 'celcliente', 'tecnico', 'valor', 'modelo', 'notacliente', 'observaciones', 'reparado', 'product_image']);
 
             return DataTables::of($ordenes)
                 ->make(true);
